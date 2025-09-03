@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>แปล+ | PDF Thai Overlay (ทีละหน้า • แทนที่ตำแหน่งจริง)</title>
+<title>แปล+ | PDF Thai Overlay (ทดสอบตัวแปล • ทีละหน้า)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
@@ -26,6 +26,8 @@
   .btn,.field,.select{background:#151c28;border:1px solid #2a3549;color:var(--text);padding:8px 10px;border-radius:10px}
   .btn{cursor:pointer;transition:.15s} .btn:hover{transform:translateY(-1px);border-color:#3a465e}
   .btn.acc{background:linear-gradient(135deg,rgba(89,157,221,.18),rgba(139,209,125,.18));border-color:#356a7c}
+  .btn.ok{background:rgba(139,209,125,.14);border-color:#3f6a44}
+  .btn.warn{background:rgba(255,107,107,.14);border-color:#7a3b3b}
   .hint{color:var(--muted);font-size:12px}
   .wrap{display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px}
   #stage{background:#0b0f16;border:1px solid #1b2333;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:72vh}
@@ -38,6 +40,9 @@
   .side{background:var(--card);border:1px solid #1f2740;border-radius:12px;padding:12px}
   .card{background:#111725;border:1px solid #1e2638;border-radius:10px;padding:10px;margin:8px 0}
   .log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:120px;overflow:auto}
+  .badge{padding:6px 10px;border:1px solid #2a3a53;border-radius:999px;color:#cfd8e6}
+  .badge.ok{border-color:#3f6a44;background:rgba(139,209,125,.12);color:#cfe9cf}
+  .badge.warn{border-color:#7a3b3b;background:rgba(255,107,107,.12);color:#ffd4d4}
   @media (max-width:980px){ .wrap{grid-template-columns:1fr} #stage{min-height:68vh} }
 </style>
 </head>
@@ -67,7 +72,7 @@
     <button id="modeBi" class="btn">สองภาษา</button>
     <select id="fontSel" class="select">
       <option value="'Sarabun'">Sarabun (TH)</option>
-      <option value="system-ui">System UI</option>
+      <option value="system-ui" selected>System UI</option>
     </select>
     <input id="fontScale" class="field" type="range" min="0.85" max="1.6" step="0.02" value="1.00" />
     <span class="hint">ขนาด</span>
@@ -90,8 +95,12 @@
 
   <div class="side">
     <div class="card">
-      <div style="font-weight:700;margin-bottom:6px">แปล/ตั้งค่า</div>
-      <div class="row" style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:700">แปล/ตั้งค่า</div>
+        <div id="endpointBadge" class="badge">ยังไม่ทดสอบ</div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
         <label class="hint"><input id="useLibre" type="checkbox" checked /> ใช้ LibreTranslate</label>
         <select id="endpointPreset" class="select">
           <option value="https://libretranslate.com/translate">libretranslate.com</option>
@@ -99,9 +108,11 @@
           <option value="https://libretranslate.de/translate">libretranslate.de</option>
           <option value="custom">กำหนดเอง…</option>
         </select>
+        <button id="testEndpointBtn" class="btn ok">ทดสอบตัวแปล</button>
       </div>
-      <input id="endpoint" class="field" value="https://libretranslate.com/translate" placeholder="ปลายทาง /translate" />
-      <div class="hint" style="margin-top:6px">ปลายทางต้องลงท้ายด้วย <code>/translate</code> เท่านั้น</div>
+
+      <input id="endpoint" class="field" value="https://libretranslate.com/translate" placeholder="ปลายทาง /translate เท่านั้น" />
+      <div class="hint" style="margin-top:6px">ปลายทางต้องลงท้ายด้วย <code>/translate</code> (ตัวอย่างในเมนู preset)</div>
 
       <div class="card" style="margin-top:10px">
         <label class="hint"><input id="coverToggle" type="checkbox" checked /> ปิดทับข้อความเดิม (ให้เห็นไทยแทน)</label>
@@ -131,9 +142,9 @@
 const $=s=>document.querySelector(s);
 const log=s=>{ const el=$('#log'); el.textContent += '\\n'+s; el.scrollTop=el.scrollHeight; };
 const setLog=s=>{ $('#log').textContent=s; };
-const setPageText=t=>{ const el=$('#pageText'); el.textContent=t; el.scrollTop=0; };
+const badge=(txt,ok)=>{ const b=$('#endpointBadge'); b.textContent=txt; b.className='badge '+(ok?'ok':'warn'); };
 
-let pdfDoc=null, pageNum=1, pagesCache=new Map(); // n -> {lines, translated}
+let pdfDoc=null, pageNum=1, pagesCache=new Map();
 const canvas=$('#pdfCanvas'), ctx=canvas.getContext('2d'), overlay=$('#overlay');
 
 function setMode(mode){
@@ -173,7 +184,7 @@ async function loadFromUrl(url){
   await loadFromArrayBuffer(buf);
 }
 
-async function renderPage(n,resetScale=false){
+async function renderPage(n){
   if(!pdfDoc) return;
   pageNum = Math.min(Math.max(1,n), pdfDoc.numPages);
   $('#gotoPage').value = pageNum;
@@ -188,15 +199,14 @@ async function renderPage(n,resetScale=false){
   overlay.style.width=vp.width+'px'; overlay.style.height=vp.height+'px';
   await page.render({canvasContext:ctx, viewport:vp}).promise;
 
-  // เติม lines/overlay ครั้งแรก
   const cache = pagesCache.get(pageNum) || {lines:null, translated:null};
   if(!cache.lines){
     const tc = await page.getTextContent({normalizeWhitespace:true, includeMarkedContent:true});
     cache.lines = groupLines(tc, vp);
-    cache.translated = cache.lines.map(l=>l.text);
+    cache.translated = cache.lines.map(l=>l.text); // default = original
     pagesCache.set(pageNum, cache);
   }
-  buildOverlay(cache.lines, cache.translated, vp);
+  buildOverlay(cache.lines, cache.translated);
   setPageText((cache.translated||cache.lines).map(l=>typeof l==='string'? l : l.text).join('\\n'));
 }
 
@@ -208,7 +218,6 @@ function groupLines(textContent, viewport){
     const w=it.width * viewport.scale;
     return {x,y,w,h,str:it.str?.trim()||'', eol:!!it.hasEOL};
   }).filter(it=>it.str);
-
   const tol=4;
   const rows=[];
   for(const it of items){
@@ -224,7 +233,7 @@ function groupLines(textContent, viewport){
   }).filter(l=>l.text.replace(/\s+/g,'').length>0);
 }
 
-function buildOverlay(lines, translated, vp){
+function buildOverlay(lines, translated){
   overlay.innerHTML='';
   const useCover=$('#coverToggle').checked;
   for(let i=0;i<lines.length;i++){
@@ -256,24 +265,51 @@ function applyGlossary(text,map){
   map.forEach((v,k)=>{ out = out.replace(new RegExp('(?<!\\w)'+k.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')+'(?!\\w)','gi'), v); });
   return out;
 }
+const thaiRatio = s => {
+  const th = (s.match(/[\u0E00-\u0E7F]/g)||[]).length;
+  const letters = (s.replace(/\s/g,'').match(/[A-Za-z\u0E00-\u0E7F]/g)||[]).length;
+  return letters ? th/letters : 0;
+};
 
-/* ======= Translation pipeline (queue + fallback) ======= */
+/* ======= Translation ======= */
+function getEndpoint(){
+  let ep = ($('#endpoint').value||'').trim();
+  if($('#endpointPreset').value!=='custom') ep = $('#endpointPreset').value;
+  if(!/\/translate(\?|$)/.test(ep)) throw new Error('ปลายทางต้องลงท้ายด้วย /translate');
+  return ep;
+}
 async function translateOne(text){
   if(!$('#useLibre').checked) throw new Error('ปิด LibreTranslate อยู่');
-  let endpoint=$('#endpoint').value.trim();
-  if(!endpoint || endpoint==='custom') endpoint='https://libretranslate.com/translate';
-  if(!/\/translate(\?|$)/.test(endpoint)) throw new Error('ปลายทางต้องลงท้ายด้วย /translate');
-
-  const body={q:text, source:'auto', target:'th', format:'text'};
-  const r = await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const endpoint = getEndpoint();
+  const r = await fetch(endpoint,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({q:text, source:'auto', target:'th', format:'text'})
+  });
   if(!r.ok) throw new Error('HTTP '+r.status);
   const data = await r.json();
-  return data?.translatedText ?? '';
+  if(data?.error) throw new Error(data.error);
+  const out = data?.translatedText ?? '';
+  if(thaiRatio(out) < 0.10) throw new Error('ผลลัพธ์ไม่ใช่ภาษาไทย');
+  return out;
+}
+
+async function testEndpoint(){
+  try{
+    const out = await translateOne('Hello');
+    if(/สวัสดี/.test(out)){ badge('พร้อมใช้งาน', true); log('ทดสอบผ่าน: Hello → '+out); }
+    else { badge('ทำงานแปลก (ไม่ใช่ไทย)', false); log('ทดสอบไม่ผ่าน: Hello → '+out); }
+  }catch(e){
+    badge('ใช้ไม่ได้', false); log('ทดสอบล้มเหลว: '+e.message);
+  }
 }
 
 async function translatePage(){
   if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
-  const cache = pagesCache.get(pageNum); if(!cache || !cache.lines?.length){ setLog('หน้านี้ไม่มีข้อความ'); return; }
+  const cache = pagesCache.get(pageNum);
+  if(!cache || !cache.lines?.length){ setLog('หน้านี้ไม่มีข้อความ'); return; }
+
+  // sanity check endpoint
+  try{ getEndpoint(); }catch(e){ badge('ปลายทางไม่ถูกต้อง', false); log(e.message); return; }
 
   const gl = parseGlossary();
   const srcLines = cache.lines.map(l=>l.text);
@@ -281,31 +317,31 @@ async function translatePage(){
   setLog(`เริ่มแปลหน้า ${pageNum} • ${srcLines.length} บรรทัด`);
   const out = new Array(srcLines.length);
 
-  // จำกัดความขนาน = 3 + backoff เบาๆ
+  // จำกัดความขนาน = 3 + backoff
   const concurrency=3;
-  let idx=0, done=0;
-
-  async function worker(id){
+  let idx=0, done=0, fail=0;
+  async function worker(){
     while(idx < srcLines.length){
       const i = idx++; const raw = srcLines[i];
       try{
-        const pre = applyGlossary(raw, gl);
-        const th = await translateOne(pre);
-        out[i] = applyGlossary(th || raw, gl);
+        const th = await translateOne(applyGlossary(raw, gl));
+        out[i] = applyGlossary(th, gl);
       }catch(e){
-        log(`[แปลล้มเหลว] แถว ${i+1}: ${e.message}`);
-        out[i] = raw; // fallback
-        await new Promise(r=>setTimeout(r, 400)); // ผ่อนโหลด
+        fail++; log(`[บรรทัด ${i+1}] ${e.message} → ใช้ต้นฉบับ`);
+        out[i] = raw;
+        await new Promise(r=>setTimeout(r, 350));
       }
       done++; if(done % 5 === 0) setLog(`แปลแล้ว ${done}/${srcLines.length}`);
     }
   }
-  await Promise.all(Array.from({length:concurrency},(_,k)=>worker(k)));
+  await Promise.all(Array.from({length:concurrency},()=>worker()));
 
   cache.translated = out;
   buildOverlay(cache.lines, cache.translated);
   setPageText(out.join('\\n'));
-  setMode('thai');
+  setMode('thai'); // สลับเป็นโหมดแปลอัตโนมัติ
+  applyCoverStyle();
+  if(fail>0) badge(`บางบรรทัดล้มเหลว (${fail})`, false); else badge('พร้อมใช้งาน', true);
   setLog(`แปลหน้า ${pageNum} เสร็จ ✓`);
 }
 
@@ -344,12 +380,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#clearLogBtn').addEventListener('click', ()=> setLog('พร้อมใช้งาน'));
 
   $('#endpointPreset').addEventListener('change', e=>{
-    const v=e.target.value;
-    if(v==='custom'){ $('#endpoint').value='https://your-domain/translate'; $('#endpoint').focus(); }
-    else $('#endpoint').value = v;
+    const v=e.target.value; if(v==='custom') return; $('#endpoint').value=v; badge('ยังไม่ทดสอบ', false);
   });
+  $('#testEndpointBtn').addEventListener('click', testEndpoint);
 
   setMode('orig'); applyFont(); applyCoverStyle();
+  // ทดสอบ endpoint อัตโนมัติครั้งแรก (สะดวก)
+  testEndpoint();
 });
 </script>
 </body>
