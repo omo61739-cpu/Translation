@@ -1,372 +1,369 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>แปล+ (PDF Thai Overlay)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0f1115; --panel:#161a22; --muted:#98a2b3;
-      --text:#e6e9ef; --brand:#59d; --brand-2:#72e0a4; --danger:#ff6565;
-      --radius:12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--text); background:var(--bg);
-    }
-    .wrap{max-width:1200px; margin:0 auto; padding:16px; display:grid; gap:16px}
-    .card{background:var(--panel); border:1px solid #222936; border-radius:var(--radius); padding:12px}
-    h1{margin:0 0 8px; font-size:20px}
-    .toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-    .toolbar .grow{flex:1}
-    input[type="file"], input[type="url"], input[type="text"], input[type="number"], textarea, select{
-      background:#0d1117; color:var(--text); border:1px solid #233043; border-radius:10px; padding:10px;
-    }
-    input[type="url"], input[type="text"]{width:100%}
-    button{
-      background:#1d2431; color:#e8eef6; border:1px solid #2a3a53; padding:10px 14px; border-radius:10px;
-      cursor:pointer; transition:all .15s;
-    }
-    button:hover{transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,.25)}
-    button.primary{background:linear-gradient(135deg,var(--brand),#7aa7ff); border-color:#3a5bd6; color:white}
-    button.green{background:linear-gradient(135deg,var(--brand-2),#5dc5b8); border-color:#309c7e; color:#00150f}
-    button.ghost{background:transparent; border-color:#2a3a53}
-    button.danger{background:#3a1218; border-color:#7c1f2c}
-    .row{display:grid; grid-template-columns:1.2fr .8fr; gap:16px}
-    @media (max-width:980px){ .row{grid-template-columns:1fr} }
-    .viewer{
-      position:relative; width:100%; aspect-ratio:3/4; background:#0b0e14; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center;
-    }
-    canvas{max-width:100%; height:auto; background:#0b0e14}
-    #overlay, #textOut{
-      position:absolute; inset:0; pointer-events:none; padding:12px;
-      font-size:16px; line-height:1.6; white-space:pre-wrap;
-    }
-    #overlay{ color:#e9fbf0; text-shadow:0 1px 0 rgba(0,0,0,.5)}
-    .badgen{padding:6px 10px; border:1px solid #2a3a53; border-radius:999px; color:var(--muted); display:inline-flex; gap:8px; align-items:center}
-    .muted{color:var(--muted); font-size:13px}
-    .cols{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-    .rightpanel textarea{height:120px; width:100%}
-    .status{min-height:72px; background:#0b0f16; border:1px dashed #2a3a53; border-radius:10px; padding:10px; font-size:13px; color:#b7c1d6}
-    .mode-group button{padding:8px 10px}
-    .mode-group button.active{outline:2px solid var(--brand); background:#18223a}
-    .small{font-size:12px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>แปล+ | PDF Thai Overlay (ตำแหน่งจริง)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
+
+<style>
+  :root{
+    --bg:#0f1116; --panel:#161b23; --text:#e9edf4; --muted:#a9b4c7;
+    --accent:#5dd0ff; --ok:#8bd17d; --warn:#ff6b6b;
+    --font: "Sarabun", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --font-scale: 1.00;
+    --cover-alpha: 0.90; /* ความทึบพื้นหลังของบรรทัดแปล (สำหรับปิดทับข้อความเดิม) */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
+  .top{position:sticky;top:0;z-index:10;background:#111725;border-bottom:1px solid #1e2533;padding:10px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .brand{font-weight:700;background:#0e1320;border:1px solid #20283a;border-radius:8px;padding:6px 10px}
+  .btn,.field,.select{background:#171e2b;border:1px solid #2a3549;color:var(--text);padding:8px 10px;border-radius:8px}
+  .btn{cursor:pointer;transition:.15s} .btn:hover{transform:translateY(-1px);border-color:#3a465e}
+  .btn.acc{background:linear-gradient(90deg,rgba(93,208,255,.15),rgba(139,209,125,.15));border-color:#356a7c}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .hint{color:var(--muted);font-size:12px}
+  .wrap{display:flex;gap:14px;padding:14px}
+  #viewer{flex:1;background:#0b0f16;border:1px solid #1a2231;border-radius:12px;padding:10px;height:calc(100vh - 160px);overflow:auto}
+  #side{width:350px;min-width:280px;background:#141a25;border:1px solid #1f2740;border-radius:12px;padding:12px;height:calc(100vh - 160px);overflow:auto}
+  .card{background:#111725;border:1px solid #1e2638;border-radius:10px;padding:10px;margin:8px 0}
+  .page{position:relative;margin:12px auto;background:#fff;border:1px solid #e8eef7;border-radius:8px;box-shadow:0 8px 18px rgba(0,0,0,.25);width:fit-content;overflow:hidden}
+  .canvasWrap{position:relative}
+  .overlay{position:absolute;inset:0;pointer-events:none}
+  .tline{
+    position:absolute; white-space:pre-wrap; line-height:1.25; transform-origin:top left;
+    font-family:var(--font); font-size:calc(12px * var(--font-scale)); color:#0b0e12;
+    background: rgba(255,255,255,0); padding:0 .1em; border-radius:2px;
+  }
+  .mode-bi canvas{opacity:.6;filter:grayscale(10%) contrast(105%)}
+  .small{font-size:12px;color:var(--muted)}
+  .status{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:110px;overflow:auto}
+  @media (max-width:980px){ .wrap{flex-direction:column} #viewer{height:70vh} #side{height:auto} }
+</style>
 </head>
 <body>
-  <div class="wrap">
 
-    <div class="toolbar card" aria-label="ตัวควบคุมบนสุด">
-      <h1 class="grow">แปล+ (PDF Thai Overlay)</h1>
-      <div class="badgen" id="readyState">ระบบพร้อมใช้งาน</div>
+<div class="top">
+  <div class="brand">แปล+ (PDF Thai Overlay)</div>
+
+  <div class="row">
+    <input id="fileInput" type="file" class="btn" accept="application/pdf">
+    <input id="urlInput" class="field" placeholder="หรือใส่ลิงก์ PDF ที่เปิด CORS/โดเมนเดียว เช่น /pdfs/book.pdf" style="min-width:320px">
+    <button id="openUrlBtn" class="btn">เปิดลิงก์ PDF</button>
+    <span class="hint">แนะนำ: ใช้ “เลือกไฟล์” จะไม่ติด CORS</span>
+  </div>
+
+  <div class="row">
+    <button id="prevBtn" class="btn">◀ หน้า</button>
+    <span class="hint">หน้า</span>
+    <input id="gotoPage" class="field" type="number" min="1" value="1" style="width:80px">
+    <span class="hint" id="pageCountHint">/ 0</span>
+    <button id="nextBtn" class="btn">หน้า ▶</button>
+  </div>
+
+  <div class="row">
+    <button id="modeOrig" class="btn">ต้นฉบับ</button>
+    <button id="modeThai" class="btn">แปล</button>
+    <button id="modeBi" class="btn">สองภาษา</button>
+    <select id="fontSel" class="select">
+      <option value="'Sarabun'">Sarabun</option>
+      <option value="system-ui">System UI</option>
+    </select>
+    <input id="fontScale" class="field" type="range" min="0.85" max="1.6" step="0.02" value="1.00">
+    <span class="hint">ขนาด</span>
+  </div>
+
+  <div class="row">
+    <button id="translatePageBtn" class="btn acc">แปลหน้าปัจจุบัน</button>
+    <button id="translateAllBtn" class="btn acc">แปลทั้งเล่ม</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="viewer" class="pdfViewer"></div>
+
+  <div id="side">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <strong>แปล/ตั้งค่า</strong>
+        <label class="small"><input id="useLibre" type="checkbox" checked> ใช้ LibreTranslate (demo)</label>
+      </div>
+      <input id="libreUrl" class="field" value="https://libretranslate.com/translate" placeholder="ปลายทาง LibreTranslate หรือ proxy ของคุณ">
+      <div class="small" style="margin-top:8px">Glossary (ต่อบรรทัด เช่น <code>neuron=นิวรอน</code>)</div>
+      <textarea id="glossary" class="field" style="width:100%;height:70px"></textarea>
+      <div class="card" style="margin:10px 0">
+        <label class="small"><input id="coverToggle" type="checkbox" checked> ปิดทับข้อความเดิม (ให้เห็นไทยแทน)</label>
+        <div class="row">
+          <input id="coverAlpha" class="field" type="range" min="0" max="1" step="0.05" value="0.90">
+          <span class="hint">ความทึบพื้นหลังแปล</span>
+        </div>
+      </div>
+      <div class="status" id="log">พร้อมใช้งาน</div>
     </div>
 
     <div class="card">
-      <div class="toolbar" style="gap:12px">
-        <div class="cols" style="flex:1">
-          <label class="grow">
-            <div class="small muted">เลือกไฟล์ (แนะนำวิธีนี้ – ไม่ติด CORS)</div>
-            <input id="fileInput" type="file" accept="application/pdf">
-          </label>
-          <label class="grow">
-            <div class="small muted">หรือเปิดลิงก์ PDF (ลิงก์ต้องเปิด CORS/อยู่โดเมนเดียว)</div>
-            <div style="display:flex; gap:6px">
-              <input id="urlInput" type="url" placeholder="เช่น /pdfs/book.pdf หรือ URL ที่เปิด CORS" class="grow">
-              <button id="openUrlBtn" class="primary">เปิดลิงก์ PDF</button>
-            </div>
-          </label>
-        </div>
-
-        <div class="toolbar">
-          <button id="prevBtn">◀︎ หน้าก่อน</button>
-          <div class="badgen"><span>หน้า</span>&nbsp;<span id="pageNum">0</span>/<span id="pageCount">0</span></div>
-          <input id="goNum" type="number" style="width:84px" min="1" placeholder="ไปหน้า">
-          <button id="goBtn">ไป</button>
-          <button id="nextBtn">หน้าถัด ▶︎</button>
-        </div>
-
-        <div class="toolbar">
-          <div class="mode-group">
-            <button data-mode="orig" class="active" id="modeOrig">ต้นฉบับ</button>
-            <button data-mode="trans" id="modeTrans">แปล</button>
-            <button data-mode="bi" id="modeBi">สองภาษา</button>
-          </div>
-          <select id="fontSel" title="ฟ้อนต์">
-            <option value="Sarabun" selected>Sarabun (TH)</option>
-            <option value="system-ui">System UI</option>
-          </select>
-          <input id="fontSize" type="range" min="12" max="28" value="18" title="ขนาดตัวอักษร">
-        </div>
-      </div>
-      <div class="muted small" style="margin-top:6px">
-        เคล็ดลับ: ถ้ากด “เปิดลิงก์ PDF” แล้วไม่ขึ้น ให้ย้ายไฟล์ PDF ไปไว้ใน repo เดียวกับเว็บ แล้วอ้างเป็นทาง relative เช่น <code>/pdfs/book.pdf</code> หรือใช้ปุ่ม “เลือกไฟล์”
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="card">
-        <div class="viewer" id="viewer">
-          <canvas id="pdfCanvas" aria-label="PDF page canvas"></canvas>
-          <div id="overlay" style="display:none"></div>
-        </div>
-      </div>
-
-      <div class="card rightpanel">
-        <div class="toolbar" style="justify-content:space-between">
-          <div style="font-weight:700">วิเคราะห์/แปล</div>
-          <div class="toolbar" style="gap:8px">
-            <button id="btnTranslatePage" class="green">แปลหน้าปัจจุบัน</button>
-            <button id="btnTranslateAll" class="ghost">แปลทั้งเล่ม</button>
-          </div>
-        </div>
-
-        <div style="margin-top:8px">
-          <label class="muted small" style="display:flex; align-items:center; gap:6px">
-            <input id="useLibre" type="checkbox" checked> ใช้ LibreTranslate (demo)
-          </label>
-          <input id="endpoint" type="text" value="https://libretranslate.com/translate" placeholder="ปลายทาง LibreTranslate (ตั้งเป็นของคุณเองได้)">
-        </div>
-
-        <div class="cols" style="margin-top:8px">
-          <div>
-            <div class="small muted">Glossary (หนึ่งคำต่อบรรทัด เช่น <code>neuron=นิวรอน</code>)</div>
-            <textarea id="glossary" placeholder="ใส่คำศัพท์สำคัญ…"></textarea>
-          </div>
-          <div>
-            <div class="small muted">สถานะ</div>
-            <div id="status" class="status">ยังไม่มีเอกสาร</div>
-          </div>
-        </div>
-
-        <div style="margin-top:10px">
-          <div class="small muted">ผลลัพธ์หน้านี้</div>
-          <div id="pageOut" class="status" style="min-height:140px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card muted small">
-      ❗ ถ้า “แปล” ไม่ไป: เซิร์ฟเวอร์เดโมอาจจำกัดหรือบล็อก CORS ให้ใส่ปลายทาง LibreTranslate ของคุณเอง (เช่นที่คุณโฮสต์) ในช่องด้านบน หรือใช้เฉพาะการดู/สรุปข้อความก่อน
+      <strong>ผลลัพธ์หน้านี้ (ข้อความ)</strong>
+      <div id="pageText" class="status" style="height:160px"></div>
     </div>
   </div>
+</div>
 
-  <!-- pdf.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    // ---------- Utilities ----------
-    const $ = (s)=>document.querySelector(s);
-    const statusEl = $("#status");
-    const pageOut = $("#pageOut");
-    const overlay = $("#overlay");
-    const canvas = $("#pdfCanvas");
-    const ctx = canvas.getContext("2d");
-    const ready = (msg,type="info")=>{
-      $("#readyState").textContent = msg;
-      $("#readyState").style.borderColor = (type==="error")?"#7c1f2c":"#2a3a53";
-    };
-    const say = (msg, type="info")=>{
-      statusEl.style.color = (type==="error")?"#ffb3b3":"#b7c1d6";
-      statusEl.textContent = msg;
-    };
+<script>
+const $=sel=>document.querySelector(sel);
+const log=(s)=>{ const el=$('#log'); el.textContent += '\\n'+s; el.scrollTop = el.scrollHeight; };
+const setStatus=(s)=>{ $('#log').textContent = s; };
+const setPageText=(t)=>{ $('#pageText').textContent=t; };
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+let pdfDoc=null, currentPage=1, scale=1.25;
+const pages=new Map(); // n -> {canvas, overlay, viewport, lines:[], translated:[]}
 
-    let pdfDoc = null, pageNum = 1, scale = 1.25, translating = false;
-    const setMode = (mode)=>{
-      // orig/trans/bi
-      document.querySelectorAll(".mode-group button").forEach(b=>b.classList.remove("active"));
-      if(mode==="orig"){ $("#modeOrig").classList.add("active"); overlay.style.display="none"; }
-      if(mode==="trans"){ $("#modeTrans").classList.add("active"); overlay.style.display="block"; }
-      if(mode==="bi"){ $("#modeBi").classList.add("active"); overlay.style.display="block"; overlay.style.mixBlendMode="normal"; }
-    };
-    setMode("orig");
-
-    $("#fontSel").addEventListener("change", e=>{
-      overlay.style.fontFamily = e.target.value;
+function setMode(mode){
+  const viewer=$('#viewer');
+  viewer.classList.remove('mode-bi');
+  if(mode==='orig'){
+    pages.forEach(p=>p.overlay.style.display='none');
+  }else if(mode==='thai'){
+    pages.forEach(p=>p.overlay.style.display='block');
+  }else if(mode==='bi'){
+    pages.forEach(p=>p.overlay.style.display='block');
+    viewer.classList.add('mode-bi');
+  }
+}
+function applyFont(){
+  document.documentElement.style.setProperty('--font-scale', $('#fontScale').value);
+  pages.forEach(p=>{
+    p.overlay.querySelectorAll('.tline').forEach(div=>{
+      div.style.fontFamily = $('#fontSel').value;
     });
-    $("#fontSize").addEventListener("input", e=>{
-      overlay.style.fontSize = e.target.value+"px";
+  });
+}
+function applyCoverStyle(){
+  const useCover = $('#coverToggle').checked;
+  const alpha = parseFloat($('#coverAlpha').value||'0');
+  document.documentElement.style.setProperty('--cover-alpha', alpha.toString());
+  pages.forEach(p=>{
+    p.overlay.querySelectorAll('.tline').forEach(div=>{
+      div.style.background = useCover ? `rgba(255,255,255, var(--cover-alpha))` : 'rgba(255,255,255,0)';
     });
-    document.querySelectorAll(".mode-group button").forEach(b=>{
-      b.addEventListener("click",()=> setMode(b.dataset.mode));
+  });
+}
+
+async function openFromFile(file){
+  reset();
+  try{
+    const buf = await file.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({data:buf}).promise;
+    $('#pageCountHint').textContent = '/ '+pdfDoc.numPages;
+    setStatus('เปิดไฟล์สำเร็จ • '+pdfDoc.numPages+' หน้า');
+    renderShells();
+    await renderPage(1);
+  }catch(e){ setStatus('เปิดไฟล์ไม่สำเร็จ: '+e.message); }
+}
+async function openFromUrl(url){
+  reset();
+  try{
+    const r=await fetch(url); if(!r.ok) throw new Error(r.status+' '+r.statusText);
+    const buf=await r.arrayBuffer();
+    pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
+    $('#pageCountHint').textContent = '/ '+pdfDoc.numPages;
+    setStatus('เปิดลิงก์สำเร็จ • '+pdfDoc.numPages+' หน้า');
+    renderShells();
+    await renderPage(1);
+  }catch(e){ setStatus('โหลดลิงก์ไม่สำเร็จ (มักเกิดจาก CORS): '+e.message); }
+}
+function reset(){
+  pdfDoc=null; currentPage=1; pages.clear(); $('#viewer').innerHTML=''; setStatus('กำลังโหลด…');
+}
+
+function renderShells(){
+  for(let i=1;i<=pdfDoc.numPages;i++){
+    const pageDiv=document.createElement('div'); pageDiv.className='page'; pageDiv.id='p_'+i;
+    const wrap=document.createElement('div'); wrap.className='canvasWrap';
+    const canvas=document.createElement('canvas'); canvas.style.display='block';
+    const overlay=document.createElement('div'); overlay.className='overlay'; overlay.style.display='none';
+    wrap.appendChild(canvas); wrap.appendChild(overlay); pageDiv.appendChild(wrap);
+    $('#viewer').appendChild(pageDiv);
+    pages.set(i,{canvas,overlay,viewport:null,lines:[],translated:[]});
+  }
+  setStatus('พร้อม • เลือกแปลหน้าได้เลย');
+}
+
+async function renderPage(n){
+  if(!pdfDoc) return;
+  currentPage=Math.min(Math.max(1,n), pdfDoc.numPages);
+  $('#gotoPage').value = currentPage;
+  const obj = pages.get(currentPage);
+  const page = await pdfDoc.getPage(currentPage);
+
+  // scale ให้พอดีความกว้าง container
+  const containerW = $('#viewer').clientWidth - 40;
+  const vp0 = page.getViewport({scale:1});
+  const s = Math.min(2.0, containerW / vp0.width);
+  const vp = page.getViewport({scale:s});
+  obj.viewport = vp;
+
+  const ctx = obj.canvas.getContext('2d');
+  obj.canvas.width = vp.width; obj.canvas.height = vp.height;
+  obj.canvas.style.width = vp.width+'px'; obj.canvas.style.height = vp.height+'px';
+  obj.overlay.style.width = vp.width+'px'; obj.overlay.style.height = vp.height+'px';
+  await page.render({canvasContext:ctx, viewport:vp}).promise;
+
+  // สกัดข้อความและบรรทัด (ครั้งแรกของหน้า)
+  if(obj.lines.length===0){
+    const tc = await page.getTextContent({normalizeWhitespace:true, includeMarkedContent:true});
+    obj.lines = buildLines(tc, vp);
+    obj.translated = obj.lines.map(l=>l.text);
+
+    // วาง overlay บรรทัด
+    obj.overlay.innerHTML='';
+    obj.lines.forEach(ln=>{
+      const div=document.createElement('div');
+      div.className='tline';
+      div.style.left = ln.x+'px';
+      div.style.top  = (ln.y - ln.h*0.85)+'px';
+      div.style.width= ln.w+'px';
+      div.style.height=ln.h+'px';
+      div.style.fontFamily = $('#fontSel').value;
+      div.textContent = ln.text;
+      obj.overlay.appendChild(div);
     });
+    applyCoverStyle();
+    applyFont();
+    setPageText(obj.lines.map(l=>l.text).join('\\n'));
+  }else{
+    // อัปเดตขนาด overlay หากมีการเปลี่ยน scale
+    obj.overlay.style.width = vp.width+'px';
+    obj.overlay.style.height = vp.height+'px';
+  }
+}
 
-    // ---------- Load PDF ----------
-    async function loadFromArrayBuffer(buf){
-      say("กำลังเปิดไฟล์…");
-      try{
-        pdfDoc = await pdfjsLib.getDocument({data: buf}).promise;
-        $("#pageCount").textContent = pdfDoc.numPages;
-        pageNum = 1;
-        say("เปิดไฟล์แล้ว ✓");
-        renderPage(pageNum);
-      }catch(err){
-        console.error(err);
-        say("เปิดไฟล์ไม่สำเร็จ: ไฟล์ไม่ใช่ PDF หรือไฟล์เสียหาย", "error");
-      }
+function buildLines(textContent, viewport){
+  const items = textContent.items.map(it=>{
+    const m = pdfjsLib.Util.transform(viewport.transform, it.transform);
+    const x=m[4], y=m[5];
+    const h=Math.max(8, Math.hypot(m[2], m[3]));
+    const w=it.width * viewport.scale;
+    return {x,y,w,h,str:it.str, eol:!!it.hasEOL};
+  }).filter(it=>it.str && it.str.trim().length>0);
+
+  const tol = 4; // px
+  const buckets=[];
+  for(const it of items){
+    let b = buckets.find(bk => Math.abs(bk.y - it.y) <= tol);
+    if(!b){ b={y:it.y, h:it.h, items:[]}; buckets.push(b); }
+    b.items.push(it); b.h=Math.max(b.h,it.h);
+  }
+  return buckets.map(b=>{
+    b.items.sort((a,b)=>a.x-b.x);
+    const text = b.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,'\n').trim();
+    const x = Math.min(...b.items.map(i=>i.x));
+    const maxX = Math.max(...b.items.map(i=>i.x+i.w));
+    return {text, x, y:b.y, w:Math.max(1, maxX-x), h:b.h};
+  }).filter(l=>l.text.replace(/\s+/g,'').length>0);
+}
+
+async function translatePage(n){
+  if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
+  await renderPage(n); // เผื่อยังไม่เรนเดอร์
+  const obj = pages.get(n);
+  const lines = obj.lines.map(l=>l.text);
+  if(lines.length===0){ setStatus('หน้านี้ไม่มีข้อความ (อาจเป็นภาพล้วน)'); return; }
+
+  setStatus(`กำลังแปลหน้า ${n}…`);
+  const gl = parseGlossary();
+
+  // แปลทีละบรรทัด (ลดโอกาสเจอ 400/จำกัด)
+  const translated=[];
+  for(let i=0;i<lines.length;i++){
+    const src = applyGlossary(lines[i], gl);
+    try{
+      const th = await translateOne(src);
+      translated.push(applyGlossary(th, gl));
+      setStatus(`กำลังแปลหน้า ${n}… ${i+1}/${lines.length}`);
+    }catch(e){
+      log('[แปลล้มเหลว] line '+(i+1)+': '+e.message);
+      translated.push(lines[i]); // ตกกลับใช้ข้อความเดิม
     }
+  }
+  obj.translated = translated;
 
-    $("#fileInput").addEventListener("change", async (e)=>{
-      const f = e.target.files?.[0];
-      if(!f) return;
-      const buf = await f.arrayBuffer();
-      await loadFromArrayBuffer(buf);
-      ready("โหลดจากไฟล์ (ไม่ติด CORS)");
-    });
+  // อัปเดต overlay รายบรรทัด
+  const divs = Array.from(obj.overlay.querySelectorAll('.tline'));
+  translated.forEach((t, i)=>{ if(divs[i]) divs[i].textContent = t; });
 
-    $("#openUrlBtn").addEventListener("click", async ()=>{
-      const url = $("#urlInput").value.trim();
-      if(!url){ say("กรุณาใส่ลิงก์ PDF ก่อน", "error"); return; }
-      say("กำลังดาวน์โหลด PDF จากลิงก์…");
-      try{
-        const res = await fetch(url);
-        if(!res.ok) throw new Error(res.status+" "+res.statusText);
-        const buf = await res.arrayBuffer();
-        await loadFromArrayBuffer(buf);
-        ready("โหลดจากลิงก์ ✓");
-      }catch(err){
-        console.error(err);
-        say("โหลดจากลิงก์ไม่สำเร็จ (ส่วนใหญ่มาจาก CORS). แนะนำให้อัปไฟล์ไว้ใน repo เดียวแล้วอ้างเป็นทาง relative หรือใช้ปุ่ม ‘เลือกไฟล์’", "error");
-        ready("มีปัญหาจากลิงก์ (CORS?)","error");
-      }
-    });
+  // แสดงผลไทยทันที + ปิดทับถ้าต้องการ
+  $('#modeThai').click(); // สลับเป็นโหมดแปล
+  applyCoverStyle();
 
-    // ---------- Render ----------
-    async function renderPage(n){
-      if(!pdfDoc) return;
-      pageNum = Math.min(Math.max(1,n), pdfDoc.numPages);
-      $("#pageNum").textContent = pageNum;
-      const page = await pdfDoc.getPage(pageNum);
-      // auto scale to container width
-      const container = $("#viewer");
-      const vw = container.clientWidth - 16;
-      const viewport = page.getViewport({scale:1});
-      const s = vw / viewport.width;
-      const vp = page.getViewport({scale: s});
-      canvas.width = vp.width;
-      canvas.height = vp.height;
-      overlay.style.width = vp.width+"px";
-      overlay.style.height = vp.height+"px";
-      overlay.textContent = ""; // clear
-      await page.render({canvasContext: ctx, viewport: vp}).promise;
-      say(`แสดงหน้า ${pageNum}/${pdfDoc.numPages}`);
-      if($("#modeTrans").classList.contains("active") || $("#modeBi").classList.contains("active")){
-        // keep overlay visible (ถ้าแปลแล้ว)
-      }
-      // extract text for this page (toใช้แปล)
-      const tc = await page.getTextContent();
-      const sorted = tc.items.map(i=>i.str).filter(Boolean);
-      pageOut.setAttribute("data-raw", sorted.join("\n"));
-      pageOut.textContent = sorted.join("\n");
-    }
+  setStatus(`แปลหน้า ${n} เสร็จแล้ว ✓`);
+  setPageText(translated.join('\\n'));
+}
 
-    $("#prevBtn").addEventListener("click", ()=>renderPage(pageNum-1));
-    $("#nextBtn").addEventListener("click", ()=>renderPage(pageNum+1));
-    $("#goBtn").addEventListener("click", ()=>{
-      const n = parseInt($("#goNum").value||"1",10);
-      renderPage(n);
-    });
+async function translateAll(){
+  if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
+  for(let n=1;n<=pdfDoc.numPages;n++){
+    await translatePage(n);
+  }
+  setStatus('แปลทั้งเล่มเสร็จแล้ว ✓');
+}
 
-    // ---------- Translate ----------
-    function parseGlossary(){
-      const g = $("#glossary").value.trim();
-      const map = {};
-      g.split("\n").forEach(line=>{
-        const [k,...rest] = line.split("=");
-        if(k && rest.length){ map[k.trim()] = rest.join("=").trim(); }
-      });
-      return map;
-    }
-    function applyGlossary(text, map){
-      let out = text;
-      Object.entries(map).forEach(([k,v])=>{
-        // แบบง่าย: แทนที่ทั้งคำ (case-insensitive)
-        out = out.replace(new RegExp(`\\b${escapeRegex(k)}\\b`,"gi"), v);
-      });
-      return out;
-    }
-    const escapeRegex = s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+// LibreTranslate (หรือ proxy ของคุณ)
+async function translateOne(text){
+  if(!$('#useLibre').checked) throw new Error('ยังไม่เปิด LibreTranslate');
+  const endpoint = ($('#libreUrl').value || '').trim() || 'https://libretranslate.com/translate';
+  const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({q:text, source:'auto', target:'th', format:'text'})});
+  if(!r.ok) throw new Error('HTTP '+r.status+' (เดโมอาจจำกัด/หรือ CORS)');
+  const data = await r.json();
+  return data?.translatedText ?? '';
+}
 
-    async function translateText(q){
-      const endpoint = $("#endpoint").value.trim();
-      if(!$("#useLibre").checked) throw new Error("ยังไม่ได้เปิด LibreTranslate");
-      const body = { q, source:"auto", target:"th", format:"text" };
-      const res = await fetch(endpoint, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
-      if(!res.ok) throw new Error(`แปลไม่สำเร็จ (${res.status}) – อาจโดนจำกัดหรือ CORS`);
-      const data = await res.json();
-      const text = typeof data.translatedText === "string" ? data.translatedText : (Array.isArray(data) ? data.map(x=>x.translatedText).join("\n") : "");
-      return text || "";
-    }
+function parseGlossary(){
+  const map=new Map();
+  ($('#glossary').value||'').split(/\\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+    const [k,...rest]=line.split('=');
+    if(k && rest.length){ map.set(k.trim(), rest.join('=').trim()); }
+  });
+  return map;
+}
+function applyGlossary(text, map){
+  let out=text;
+  map.forEach((v,k)=>{
+    // แทนแบบเคารพขอบเขตคำอย่างหยาบ ๆ
+    out = out.replace(new RegExp('(?<!\\w)'+escapeRegex(k)+'(?!\\w)','gi'), v);
+  });
+  return out;
+}
+function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&'); }
 
-    async function translateCurrentPage(){
-      if(!pdfDoc) return say("ยังไม่มีเอกสาร", "error");
-      if(translating) return;
-      translating = true;
-      say("กำลังแปลหน้านี้…");
-      try{
-        const raw = pageOut.getAttribute("data-raw") || pageOut.textContent || "";
-        if(!raw.trim()){ pageOut.textContent = "(ไม่มีข้อความสำหรับแปล – หน้านี้อาจเป็นรูปภาพล้วน)"; overlay.textContent=""; setMode("orig"); say("หน้าเป็นรูปภาพล้วน/ไม่มีข้อความ", "error"); translating=false; return; }
-        const gl = parseGlossary();
-        const pre = applyGlossary(raw, gl); // pre-hint
-        const th = await translateText(pre);
-        const post = applyGlossary(th, gl); // post-fix
-        overlay.textContent = post;
-        pageOut.textContent = post;
-        setMode("trans");
-        say(`แปลหน้า ${pageNum} เสร็จแล้ว ✓`);
-      }catch(err){
-        console.error(err);
-        say(err.message || "แปลไม่สำเร็จ", "error");
-      }finally{
-        translating = false;
-      }
-    }
+// events
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#fileInput').addEventListener('change', e=>{
+    const f=e.target.files?.[0]; if(f) openFromFile(f);
+  });
+  $('#openUrlBtn').addEventListener('click', ()=>{
+    const url=$('#urlInput').value.trim(); if(url) openFromUrl(url);
+  });
+  $('#prevBtn').addEventListener('click', ()=> renderPage(currentPage-1));
+  $('#nextBtn').addEventListener('click', ()=> renderPage(currentPage+1));
+  $('#gotoPage').addEventListener('change', ()=> renderPage(parseInt($('#gotoPage').value||'1',10)));
+  $('#translatePageBtn').addEventListener('click', ()=> translatePage(currentPage));
+  $('#translateAllBtn').addEventListener('click', ()=> translateAll());
 
-    async function translateAll(){
-      if(!pdfDoc) return say("ยังไม่มีเอกสาร", "error");
-      if(translating) return;
-      translating = true;
-      say("กำลังแปลทั้งเล่ม… (อาจใช้เวลาตามความยาวเอกสาร)");
-      let out = [];
-      const gl = parseGlossary();
-      try{
-        for(let i=1;i<=pdfDoc.numPages;i++){
-          const page = await pdfDoc.getPage(i);
-          const tc = await page.getTextContent();
-          const text = tc.items.map(j=>j.str).join("\n");
-          if(text.trim().length===0){ out.push(`(หน้า ${i}: ไม่มีข้อความ)`); continue; }
-          const pre = applyGlossary(text, gl);
-          const th = await translateText(pre);
-          out.push(`หน้า ${i}\n${applyGlossary(th, gl)}`);
-          say(`กำลังแปลหน้า ${i}/${pdfDoc.numPages}…`);
-        }
-        const joined = out.join("\n\n────────────────\n\n");
-        overlay.textContent = (pageNum === 1) ? out[0] : overlay.textContent;
-        pageOut.textContent = (pageNum === 1) ? out[0] : pageOut.textContent;
-        // เก็บเป็นไฟล์ txt ให้โหลด
-        const blob = new Blob([joined], {type:"text/plain;charset=utf-8"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url; a.download = "translation.txt"; a.click();
-        URL.revokeObjectURL(url);
-        say("แปลทั้งเล่มเสร็จแล้ว ✓ ไฟล์ถูกดาวน์โหลดเป็น translation.txt");
-        setMode("trans");
-      }catch(err){
-        console.error(err);
-        say(err.message || "แปลไม่สำเร็จ", "error");
-      }finally{
-        translating = false;
-      }
-    }
+  $('#modeOrig').addEventListener('click', ()=> setMode('orig'));
+  $('#modeThai').addEventListener('click', ()=> setMode('thai'));
+  $('#modeBi').addEventListener('click', ()=> setMode('bi'));
 
-    $("#btnTranslatePage").addEventListener("click", translateCurrentPage);
-    $("#btnTranslateAll").addEventListener("click", translateAll);
+  $('#fontSel').addEventListener('change', applyFont);
+  $('#fontScale').addEventListener('input', applyFont);
+  $('#coverToggle').addEventListener('change', applyCoverStyle);
+  $('#coverAlpha').addEventListener('input', applyCoverStyle);
 
-    // เริ่มต้น
-    ready("พร้อมใช้งาน");
-  </script>
+  setMode('orig'); applyFont(); applyCoverStyle();
+});
+</script>
 </body>
 </html>
