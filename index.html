@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>แปล+ | PDF Thai Overlay Translator</title>
+<title>แปล+ | PDF Thai Overlay (v2 – iOS fixed)</title>
 
-<!-- ฟอนต์ไทยยอดนิยม -->
+<!-- ฟอนต์ไทย -->
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Noto+Sans+Thai:wght@300;400;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;600;700&family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- PDF.js (ใช้รุ่นเสถียรจาก CDN) -->
+<!-- PDF.js -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.js"></script>
@@ -17,7 +17,6 @@
   :root{
     --bg:#0f1218; --card:#171b23; --soft:#1f2430; --text:#e9edf1; --muted:#b7c1d6;
     --accent:#5dd0ff; --accent2:#7cf0c9; --danger:#ff6b6b; --ok:#8bd17d;
-    --overlayText:#eaeef7; --overlayBg: rgba(23,27,35,0.02);
     --thai-font: "Sarabun", system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans Thai", sans-serif;
     --font-scale: 1.00;
   }
@@ -32,7 +31,7 @@
   .bar-group{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
   .spacer{flex:1}
 
-  .btn, .select, .field, .toggle{
+  .btn, .select, .field{
     background: var(--card); border:1px solid #2a3242; color:var(--text);
     padding:8px 10px; border-radius:8px; font-size:14px;
   }
@@ -40,63 +39,49 @@
   .btn:hover{ border-color:#39445a; transform: translateY(-1px);}
   .btn.acc{ background: linear-gradient(90deg, rgba(93,208,255,.15), rgba(124,240,201,.15)); border-color:#356a7c;}
   .btn.good{ background: rgba(139,209,125,.12); border-color:#3f6a44;}
-  .btn.warn{ background: rgba(255,107,107,.12); border-color:#7a3b3b;}
   .btn.small{ padding:6px 8px; font-size:13px;}
   .select, .field{ appearance:none; }
   .field[type="range"]{ width:170px; padding:0; }
 
-  .panel{
-    display:flex; gap:14px; padding:14px; border-top:1px solid #1e2430; background: #0e131c;
-  }
-  .section{ background: var(--card); border:1px solid #232a39; border-radius:12px; padding:12px;}
+  .mode-pill{ padding:6px; border-radius: 999px; background:#121826; border:1px solid #2a3242; display:flex; gap:4px;}
+  .mode-pill .btn{ background: transparent; border:0; padding:6px 10px;}
+  .mode-pill .btn.active{ background: #1b2332; border-radius: 999px; border:1px solid #39445a;}
+
+  .panel{ display:flex; gap:14px; padding:14px; border-top:1px solid #1e2430; background: #0e131c; flex-wrap:wrap;}
+  .section{ background: var(--card); border:1px solid #232a39; border-radius:12px; padding:12px; min-width:280px;}
   .section h3{ margin:6px 0 10px; font-size:14px; color:var(--muted); font-weight:600; letter-spacing:.2px;}
   .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:8px 0;}
   .hint{ font-size:12px; color: var(--muted); opacity:.9 }
 
   #viewerWrap{ display:flex; gap:14px; padding:14px;}
-  #viewer{ flex:1; background: #0c1018; border:1px solid #1b2230; border-radius:12px; padding:10px; overflow:auto; height: calc(100vh - 160px);}
-  #sidebar{ width:330px; min-width:280px; background: var(--card); border:1px solid #232a39; border-radius:12px; padding:12px; height: calc(100vh - 160px); overflow:auto;}
+  #viewer{ flex:1; background: #0c1018; border:1px solid #1b2230; border-radius:12px; padding:10px; overflow:auto; height: calc(100vh - 164px);}
+  #sidebar{ width:330px; min-width:280px; background: var(--card); border:1px solid #232a39; border-radius:12px; padding:12px; height: calc(100vh - 164px); overflow:auto;}
   .page{
     position: relative; margin: 12px auto; background: #fff; width: fit-content; box-shadow: 0 8px 18px rgba(0,0,0,.25);
     border-radius: 8px; overflow:hidden; border:1px solid #e9eef5;
   }
   .canvasWrap{ position: relative; }
-  .translated-layer{
-    position: absolute; inset: 0; pointer-events:none; /* allow selection when toggled */ 
-    color: var(--overlayText);
-  }
+  .translated-layer{ position:absolute; inset:0; pointer-events:none; color:#101217;}
   .tline{
-    position: absolute; white-space: pre-wrap; background: var(--overlayBg); /* soft bg to see overlay */
-    padding: 0 .12em; border-radius: 2px;
-    line-height: 1.25; transform-origin: top left;
+    position:absolute; white-space:pre-wrap; background:rgba(255,255,255,.0);
+    padding:0 .12em; border-radius:2px; line-height:1.25; transform-origin:top left;
     font-family: var(--thai-font); font-size: calc(12px * var(--font-scale));
-    text-shadow: 0 0 1px rgba(255,255,255,.15);
   }
-  .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .mode-pill{ padding:6px 9px; border-radius: 999px; background:#121826; border:1px solid #2a3242;}
-  .mode-pill .btn{ background: transparent; border:0; padding:6px 10px;}
-  .mode-pill .btn.active{ background: #1b2332; border-radius: 999px; border:1px solid #39445a;}
-  .transparentCanvas canvas{ opacity:.6; filter: grayscale(10%) contrast(105%); }
+  .transparentCanvas canvas{ opacity:.58; filter: grayscale(15%) contrast(105%); }
 
-  .divider{ height:1px; background:#20283a; margin:10px 0; }
-
-  .card {
-    background:#121827; border:1px solid #1f2637; border-radius:10px; padding:10px; margin:8px 0;
-  }
-  .card h4{ margin:6px 0 6px; font-size:14px; color:#aebad1; }
+  .card { background:#121827; border:1px solid #1f2637; border-radius:10px; padding:10px; margin:8px 0;}
+  .card h4{ margin:6px 0 6px; font-size:14px; color:#aebad1;}
   .card p{ margin:6px 0; font-size:13px; color:#d4dcee; }
   .log{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:#9fb3d6; background:#0b0f16; border:1px dashed #243047; border-radius:8px; padding:8px; height:120px; overflow:auto;}
 
-  /* mobile tweaks */
   @media (max-width: 980px){
     #viewerWrap{ flex-direction: column; }
-    #sidebar{ height:auto; }
     #viewer{ height: 70vh; }
+    #sidebar{ height:auto; }
   }
 </style>
 </head>
 <body>
-
   <div class="topbar">
     <div class="brand">แปล+ (PDF Thai Overlay)</div>
 
@@ -139,441 +124,339 @@
   </div>
 
   <div class="panel">
-    <div class="section" style="flex:1; min-width:260px">
+    <div class="section" style="flex:1">
       <h3>ตัวแปล</h3>
       <div class="row">
-        <label class="toggle"><input id="useLibre" type="checkbox" /> ใช้ LibreTranslate (demo)</label>
-        <input id="libreUrl" class="field" placeholder="ปลายทาง LibreTranslate (เช่น https://libretranslate.com/translate)" style="min-width: 320px; width: 100%;" />
+        <label><input id="useLibre" type="checkbox" /> ใช้ LibreTranslate (demo)</label>
+        <input id="libreUrl" class="field" placeholder="https://libretranslate.com/translate" style="min-width: 320px; width:100%;" />
       </div>
       <div class="row">
         <details>
-          <summary class="hint">ตั้งค่า “API แบบกำหนดเอง” (สำหรับ proxy/เซิร์ฟเวอร์ของคุณ)</summary>
+          <summary class="hint">ตั้งค่า “API แบบกำหนดเอง” (POST {texts[], source, target} ⇒ {translations[]})</summary>
           <div class="row" style="margin-top:8px">
-            <input id="customApiUrl" class="field" placeholder="POST endpoint ของคุณ (รับ {texts[], source, target} ส่งกลับ {translations[]})" style="min-width:420px; width:100%;">
+            <input id="customApiUrl" class="field" placeholder="เช่น https://your-proxy.example/translate" style="min-width:420px; width:100%;">
           </div>
         </details>
       </div>
       <div class="row">
-        <textarea id="glossary" class="field" style="width:100%; height:72px" placeholder="Glossary (ใส่ทีละบรรทัด เช่น neuron=นิวรอน; synapse=ไซแนปส์)"></textarea>
+        <textarea id="glossary" class="field" style="width:100%; height:72px" placeholder="Glossary (รูปแบบ: neuron=นิวรอน; synapse=ไซแนปส์)"></textarea>
       </div>
-      <div class="hint">
-        เคล็ดลับ: เพื่อคุณภาพสูงสุด แนะนำตั้งค่า endpoint ส่วนตัว (เช่น proxy ไปยังโมเดลที่คุณใช้จริง) แล้วเลือก “แปลทั้งเล่ม”
-      </div>
+      <div class="hint">เพื่อคุณภาพสูง แนะนำใช้ endpoint ส่วนตัว (proxy ไปยังโมเดลที่คุณใช้จริง) แล้วกด “แปลทั้งเล่ม”</div>
     </div>
 
-    <div class="section" style="min-width:260px">
+    <div class="section" style="min-width:280px">
       <h3>วิเคราะห์ (ออฟไลน์ในเบราว์เซอร์)</h3>
       <div class="row">
         <button id="summPgBtn" class="btn good">สรุปหน้านี้</button>
         <button id="termsPgBtn" class="btn">คำศัพท์สำคัญ</button>
         <button id="exportTxtBtn" class="btn">ส่งออกข้อความ</button>
       </div>
-      <div class="row">
-        <div class="log" id="analysisLog">ระบบพร้อมใช้งาน</div>
-      </div>
+      <div class="row"><div class="log" id="analysisLog">ระบบพร้อมใช้งาน</div></div>
     </div>
   </div>
 
   <div id="viewerWrap">
     <div id="viewer" class="pdfViewer"></div>
     <div id="sidebar">
-      <div class="card">
-        <h4>สถานะ</h4>
-        <p id="status">ยังไม่มีเอกสาร</p>
-      </div>
-      <div class="card">
-        <h4>บันทึก</h4>
-        <div class="log" id="log"></div>
-      </div>
+      <div class="card"><h4>สถานะ</h4><p id="status">ยังไม่มีเอกสาร</p></div>
+      <div class="card"><h4>บันทึก</h4><div class="log" id="log"></div></div>
       <div class="card">
         <h4>หมายเหตุ</h4>
-        <p class="hint">• โหมด “แปล”: แสดงเฉพาะชั้นข้อความแปล (ภาพเดิมอยู่ครบ)</p>
-        <p class="hint">• “สองภาษา”: ลดความทึบของภาพ เพื่ออ่านซ้อนแปลได้ชัด</p>
-        <p class="hint">• การแปลหน้า PDF จะทำเป็นบรรทัด/ย่อหน้า (ใกล้เคียงเลย์เอาต์เดิม)</p>
-        <p class="hint">• ลิงก์ภายนอกต้องเปิด CORS จึงจะดึงไฟล์ได้</p>
+        <p class="hint">• ต้อง “เปิดไฟล์/ลิงก์” ให้สถานะขึ้น “เปิดเอกสารสำเร็จ” ก่อนจึงจะกด “แปล…” ได้</p>
+        <p class="hint">• โหมด “แปล/สองภาษา” จะเห็นตัวอักษรไทยซ้อนบนหน้าเดิม</p>
+        <p class="hint">• PDF ที่เป็นสแกนรูปทั้งหน้า ต้องมี OCR ฝั่งเซิร์ฟเวอร์ (GitHub Pages ไม่รองรับ)</p>
       </div>
     </div>
   </div>
 
 <script>
-/** ========= PDF.js init ========= */
+/* =================== boot & guard =================== */
+(function boot(){
+  const log = (s)=>{ const el=document.getElementById('log'); el.textContent += (s+"\n"); el.scrollTop=el.scrollHeight; };
+  window.__log = log;
+  window.addEventListener('error', (e)=>{ log('[window error] ' + e.message); });
+  window.addEventListener('unhandledrejection', (e)=>{ log('[promise] ' + (e.reason && e.reason.message || e.reason)); });
+
+  if(!window.pdfjsLib){
+    log('❌ โหลด pdf.js ไม่สำเร็จ (ตรวจอินเทอร์เน็ต/CDN)');
+  }else{
+    log('✅ pdf.js พร้อมใช้งาน');
+  }
+})();
+</script>
+
+<script>
+/* =================== globals & helpers =================== */
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js";
 
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
-
 const els = {
-  fileInput: $('#fileInput'),
-  openUrlBtn: $('#openUrlBtn'),
-  prevBtn: $('#prevBtn'),
-  nextBtn: $('#nextBtn'),
-  gotoPage: $('#gotoPage'),
-  gotoBtn: $('#gotoBtn'),
-  translatePageBtn: $('#translatePageBtn'),
-  translateAllBtn: $('#translateAllBtn'),
-  useLibre: $('#useLibre'),
-  libreUrl: $('#libreUrl'),
-  customApiUrl: $('#customApiUrl'),
-  fontSel: $('#fontSel'),
-  fontScale: $('#fontScale'),
-  viewer: $('#viewer'),
-  status: $('#status'),
-  log: $('#log'),
-  analysisLog: $('#analysisLog'),
-  modePills: $$('.mode-pill .btn'),
-  summPgBtn: $('#summPgBtn'),
-  termsPgBtn: $('#termsPgBtn'),
-  exportTxtBtn: $('#exportTxtBtn'),
+  fileInput: $('#fileInput'), openUrlBtn: $('#openUrlBtn'),
+  prevBtn: $('#prevBtn'), nextBtn: $('#nextBtn'),
+  gotoPage: $('#gotoPage'), gotoBtn: $('#gotoBtn'),
+  translatePageBtn: $('#translatePageBtn'), translateAllBtn: $('#translateAllBtn'),
+  useLibre: $('#useLibre'), libreUrl: $('#libreUrl'), customApiUrl: $('#customApiUrl'),
+  fontSel: $('#fontSel'), fontScale: $('#fontScale'),
+  viewer: $('#viewer'), status: $('#status'), analysisLog: $('#analysisLog'),
+  modePills: $$('.mode-pill .btn'), summPgBtn: $('#summPgBtn'), termsPgBtn: $('#termsPgBtn'), exportTxtBtn: $('#exportTxtBtn'),
   glossary: $('#glossary'),
 };
-
-let pdfDoc = null;
-let pdfUrl = null;
-let currentPage = 1;
-let scale = 1.25;
-let pageViews = new Map(); // pageNumber -> {container, canvas, overlay, lines, translatedText[]}
-let displayMode = 'orig'; // orig | thai | bi
-
-function log(s){ els.log.textContent += (s+"\n"); els.log.scrollTop = els.log.scrollHeight; }
+function log(s){ window.__log && window.__log(s); }
 function setStatus(s){ els.status.textContent = s; }
 function setAnalysis(s){ els.analysisLog.textContent = s; }
 
-/** ========= Translator (pluggable) ========= */
+let pdfDoc=null, currentPage=1, scale=1.25;
+let pageViews = new Map(); // n -> {container, canvas, overlay, lines, translated}
+
+/* =================== translator =================== */
 const Translator = {
   async translateLines(lines, {source='auto', target='th', batchSize=12}={}){
-    // apply glossary pre-normalization
-    const gloss = parseGlossary(els.glossary.value);
-    const applyGlossary = (txt) => txt; // (เราจะใช้ post-fix หลังแปลแทน)
-
-    // choose backend
-    if(els.customApiUrl.value.trim()){
-      return await this.translateViaCustom(lines, source, target);
-    }else if(els.useLibre.checked){
-      const endpoint = (els.libreUrl.value.trim() || 'https://libretranslate.com/translate');
-      return await this.translateViaLibre(lines, endpoint, source, target, batchSize);
-    }else{
-      // demo: no-translate (pass-through)
-      return lines.map(t => t);
-    }
+    if(els.customApiUrl.value.trim()) return this.translateViaCustom(lines, source, target);
+    if(els.useLibre.checked) return this.translateViaLibre(lines, (els.libreUrl.value.trim() || 'https://libretranslate.com/translate'), source, target, batchSize);
+    return lines; // no-op (demo)
   },
   async translateViaLibre(lines, endpoint, source, target, batchSize){
-    const out = [];
+    const out=[]; 
     for(let i=0;i<lines.length;i+=batchSize){
-      const chunk = lines.slice(i, i+batchSize);
-      const translated = await Promise.all(chunk.map(async text=>{
-        const body = { q:text, source, target, format:"text" };
+      const chunk=lines.slice(i,i+batchSize);
+      const res=await Promise.all(chunk.map(async t=>{
         try{
-          const r = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+          const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source,target,format:'text'})});
           if(!r.ok) throw new Error('HTTP '+r.status);
-          const data = await r.json();
-          return (data?.translatedText ?? text);
-        }catch(err){
-          log(`[LibreTranslate] แปลล้มเหลว ใช้ต้นฉบับแทน: ${err}`);
-          return text;
-        }
+          const data=await r.json();
+          return data?.translatedText ?? t;
+        }catch(e){ log('[LibreTranslate] ล้มเหลว ใช้ข้อความเดิม: '+e.message); return t; }
       }));
-      out.push(...translated);
+      out.push(...res);
     }
     return out;
   },
   async translateViaCustom(lines, source, target){
     const url = els.customApiUrl.value.trim();
     try{
-      const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({texts: lines, source, target})});
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texts:lines, source, target})});
       if(!r.ok) throw new Error('HTTP '+r.status);
-      const data = await r.json();
-      if(Array.isArray(data.translations)) return data.translations;
+      const data=await r.json();
+      if(Array.isArray(data?.translations)) return data.translations;
       if(Array.isArray(data)) return data;
-      throw new Error('รูปแบบตอบกลับไม่ถูกต้อง');
-    }catch(err){
-      log(`[Custom API] ล้มเหลว ใช้ต้นฉบับแทน: ${err}`);
-      return lines;
-    }
+      throw new Error('รูปแบบผลลัพธ์ไม่ถูกต้อง');
+    }catch(e){ log('[Custom API] ล้มเหลว: '+e.message); return lines; }
   }
 };
 
 function parseGlossary(raw){
-  const map = new Map();
+  const map=new Map();
   raw.split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
-    const m = line.split('=');
-    if(m.length>=2){
-      const k = m[0].trim(); const v = m.slice(1).join('=').trim();
-      if(k && v) map.set(k, v);
-    }
+    const m=line.split('=');
+    if(m.length>=2){ const k=m[0].trim(), v=m.slice(1).join('=').trim(); if(k&&v) map.set(k,v); }
   });
   return map;
 }
 
-/** ========= PDF loading & rendering ========= */
-async function openPdfFromFile(file){
-  resetViewer();
-  const url = URL.createObjectURL(file);
-  pdfUrl = url;
-  await loadPdf(url);
-}
-async function openPdfFromUrl(url){
-  resetViewer();
-  pdfUrl = url;
-  await loadPdf(url);
-}
+/* =================== open & render =================== */
 function resetViewer(){
-  pdfDoc = null; currentPage = 1; pageViews.clear();
-  els.viewer.innerHTML = '';
-  setStatus('กำลังโหลด…');
+  pdfDoc=null; currentPage=1; pageViews.clear();
+  els.viewer.innerHTML=''; setStatus('กำลังโหลด…');
 }
 
-async function loadPdf(url){
+async function openPdfFromFile(file){
+  resetViewer();
+  try{
+    // iOS-safe: อ่านเป็น ArrayBuffer
+    const buf = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buf) });
+    pdfDoc = await loadingTask.promise;
+    await afterPdfOpened();
+  }catch(err){
+    setStatus('โหลดเอกสารไม่สำเร็จ (ไฟล์)');
+    log('❌ openPdfFromFile: '+err.message);
+  }
+}
+
+async function openPdfFromUrl(url){
+  resetViewer();
   try{
     const loadingTask = pdfjsLib.getDocument({ url });
     pdfDoc = await loadingTask.promise;
-    setStatus(`เปิดเอกสารสำเร็จ: ${pdfDoc.numPages} หน้า`);
-    renderAllShells(); // วางโครงหน้าก่อน
-    await renderPage(currentPage);
-    els.gotoPage.max = pdfDoc.numPages;
+    await afterPdfOpened();
   }catch(err){
-    setStatus('โหลดเอกสารไม่สำเร็จ');
-    log('โหลดไม่สำเร็จ: '+err);
+    setStatus('โหลดเอกสารไม่สำเร็จ (ลิงก์)');
+    log('❌ openPdfFromUrl: '+err.message+' | ตรวจ CORS ของไฟล์ปลายทาง');
   }
+}
+
+async function afterPdfOpened(){
+  setStatus(`เปิดเอกสารสำเร็จ: ${pdfDoc.numPages} หน้า`);
+  renderAllShells();
+  els.gotoPage.max = pdfDoc.numPages;
+  await renderPage(currentPage);
 }
 
 function renderAllShells(){
   els.viewer.classList.add('pdfViewer');
   for(let i=1;i<=pdfDoc.numPages;i++){
-    const container = document.createElement('div');
-    container.className = 'page';
-    container.id = `page_${i}`;
+    const container=document.createElement('div');
+    container.className='page'; container.id='page_'+i;
 
-    const canvasWrap = document.createElement('div');
-    canvasWrap.className = 'canvasWrap';
+    const canvasWrap=document.createElement('div'); canvasWrap.className='canvasWrap';
+    const canvas=document.createElement('canvas'); canvas.style.display='block';
+    const overlay=document.createElement('div'); overlay.className='translated-layer';
 
-    const canvas = document.createElement('canvas');
-    canvas.style.display='block';
-
-    const overlay = document.createElement('div');
-    overlay.className = 'translated-layer'; // absolute overlay
-
-    canvasWrap.appendChild(canvas);
-    canvasWrap.appendChild(overlay);
-    container.appendChild(canvasWrap);
-    els.viewer.appendChild(container);
-
-    pageViews.set(i, {container, canvas, overlay, lines: [], translated: []});
+    canvasWrap.appendChild(canvas); canvasWrap.appendChild(overlay);
+    container.appendChild(canvasWrap); els.viewer.appendChild(container);
+    pageViews.set(i,{container,canvas,overlay,lines:[],translated:[]});
   }
 }
 
-async function renderPage(pageNumber){
-  const pv = pageViews.get(pageNumber);
-  if(!pv) return;
-  const page = await pdfDoc.getPage(pageNumber);
-  const viewport = page.getViewport({ scale });
+async function renderPage(n){
+  const pv=pageViews.get(n); if(!pv) return;
+  const page=await pdfDoc.getPage(n);
+  const viewport=page.getViewport({ scale });
 
-  // render canvas
-  const ctx = pv.canvas.getContext('2d');
-  pv.canvas.width = viewport.width;
-  pv.canvas.height = viewport.height;
-  pv.canvas.style.width = viewport.width + 'px';
-  pv.canvas.style.height = viewport.height + 'px';
-  const renderTask = page.render({ canvasContext: ctx, viewport });
-  await renderTask.promise;
+  // draw
+  const ctx=pv.canvas.getContext('2d');
+  pv.canvas.width=viewport.width; pv.canvas.height=viewport.height;
+  pv.canvas.style.width=viewport.width+'px'; pv.canvas.style.height=viewport.height+'px';
+  await page.render({canvasContext:ctx, viewport}).promise;
 
-  // extract lines + place overlay DIVs (if not yet)
-  if(pv.lines.length === 0){
-    const textContent = await page.getTextContent({ normalizeWhitespace: true, includeMarkedContent: true });
-    const lines = buildLinesFromTextContent(textContent, viewport);
-    pv.lines = lines;
-    // initial overlay DOM (use original text first)
-    pv.overlay.innerHTML = '';
-    lines.forEach((ln, idx)=>{
-      const div = document.createElement('div');
-      div.className = 'tline';
-      div.style.left = ln.x + 'px';
-      div.style.top = (ln.y - ln.h*0.85) + 'px';
-      div.style.width = ln.w + 'px';
-      div.style.height = ln.h + 'px';
-      div.style.transform = `scale(${ln.scaleX}, ${ln.scaleY})`;
-      div.textContent = ln.text; // original first
+  // text extraction
+  if(pv.lines.length===0){
+    const tc=await page.getTextContent({ normalizeWhitespace:true, includeMarkedContent:true });
+    const lines=groupLines(tc, viewport);
+    pv.lines=lines;
+    pv.overlay.innerHTML='';
+    lines.forEach(ln=>{
+      const div=document.createElement('div');
+      div.className='tline';
+      div.style.left=ln.x+'px';
+      div.style.top=(ln.y - ln.h*0.85)+'px';
+      div.style.width=ln.w+'px';
+      div.style.height=ln.h+'px';
+      div.textContent = ln.text;
       pv.overlay.appendChild(div);
     });
     pv.translated = [...lines.map(l=>l.text)];
   }
-
   applyDisplayMode();
 }
 
-function buildLinesFromTextContent(textContent, viewport){
-  // กลุ่มข้อความเป็น “บรรทัด” โดยอาศัย hasEOL / y เดียวกัน
-  const Util = pdfjsLib.Util;
-  const lines = [];
-  let cur = { text:'', boxes:[], x:Infinity, y:Infinity, maxX:-Infinity, h:0, scaleX:1, scaleY:1 };
-  function flush(){
-    if(!cur.text.trim()) return;
-    const w = Math.max(1, cur.maxX - cur.x);
-    lines.push({ text: cur.text.trim(), x: cur.x, y: cur.y, w, h: Math.max(cur.h, 12), scaleX:cur.scaleX, scaleY:cur.scaleY });
-    cur = { text:'', boxes:[], x:Infinity, y:Infinity, maxX:-Infinity, h:0, scaleX:1, scaleY:1 };
+function groupLines(textContent, viewport){
+  // รวม text items ให้เป็นบรรทัดตามค่าพิกัด y ที่ “ใกล้กัน” (tolerance)
+  const items=textContent.items.map(it=>{
+    const m=pdfjsLib.Util.transform(viewport.transform, it.transform);
+    const x=m[4], y=m[5];
+    const fontH=Math.max(8, Math.hypot(m[2], m[3]));
+    return {x, y, w: it.width*viewport.scale, h: fontH, str: it.str, eol: !!it.hasEOL};
+  });
+  const tol=4; // px
+  const buckets=[];
+  for(const it of items){
+    let bucket=buckets.find(b=>Math.abs(b.y - it.y) <= tol);
+    if(!bucket){ bucket={y:it.y, items:[], h:it.h}; buckets.push(bucket); }
+    bucket.items.push(it); bucket.h=Math.max(bucket.h, it.h);
   }
-
-  for(const item of textContent.items){
-    const m = pdfjsLib.Util.transform(viewport.transform, item.transform);
-    const x = m[4], y = m[5];
-    const fontH = Math.hypot(m[2], m[3]); // approx
-    const width = item.width * viewport.scale;
-    // ถ้าเป็นบรรทัดใหม่ (ใช้ hasEOL หรือกระโดด y มาก)
-    const isNewLine = (item.hasEOL === true) || (cur.y !== Infinity && Math.abs(cur.y - y) > fontH*0.8);
-    if(isNewLine){ flush(); }
-    // เพิ่มข้อความ
-    cur.text += (item.str || '') + (item.hasEOL ? '\n' : ' ');
-    cur.x = Math.min(cur.x, x);
-    cur.y = Math.min(cur.y, y);
-    cur.maxX = Math.max(cur.maxX, x + width);
-    cur.h = Math.max(cur.h, fontH);
-    cur.scaleX = 1; cur.scaleY = 1;
-    if(item.hasEOL){ flush(); }
-  }
-  flush();
-  // กรองบรรทัดสั้นๆว่างเปล่า
-  return lines.filter(l => l.text.replace(/\s+/g,'').length > 0);
+  return buckets.map(b=>{
+    b.items.sort((a,b)=>a.x-b.x);
+    const text=b.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,'\n');
+    const x=Math.min(...b.items.map(i=>i.x));
+    const maxX=Math.max(...b.items.map(i=>i.x+i.w));
+    return {text: text.trim(), x, y:b.y, w: Math.max(1, maxX-x), h: b.h};
+  }).filter(l=>l.text.replace(/\s+/g,'').length>0);
 }
 
-/** ========= Display mode & font ========= */
+/* =================== mode & font =================== */
 function applyDisplayMode(){
-  // bi = bilingual: ลดความทึบภาพเพื่อซ้อนอ่านได้
-  const isThai = (displayMode === 'thai' || displayMode === 'bi');
-  els.viewer.classList.toggle('transparentCanvas', displayMode === 'bi');
-
-  // เปิด/ปิด overlay
-  pageViews.forEach(pv=>{
-    pv.overlay.style.display = isThai ? 'block' : (displayMode === 'orig' ? 'none' : 'block');
-  });
-
+  const mode = document.querySelector('.mode-pill .btn.active')?.dataset.mode || 'orig';
+  const showOverlay = (mode!=='orig');
+  els.viewer.classList.toggle('transparentCanvas', mode==='bi');
+  pageViews.forEach(pv=>{ pv.overlay.style.display = showOverlay? 'block':'none'; });
   document.documentElement.style.setProperty('--thai-font', els.fontSel.value);
   document.documentElement.style.setProperty('--font-scale', els.fontScale.value);
 }
 
-/** ========= Navigation ========= */
-async function renderIfNeeded(n){
-  const pv = pageViews.get(n);
-  if(!pv) return;
-  if(pv.canvas.width === 0){ await renderPage(n); }
-}
-
-els.prevBtn.onclick = async ()=>{ if(!pdfDoc) return; currentPage = Math.max(1, currentPage-1); await renderPage(currentPage); els.gotoPage.value = currentPage; };
-els.nextBtn.onclick = async ()=>{ if(!pdfDoc) return; currentPage = Math.min(pdfDoc.numPages, currentPage+1); await renderPage(currentPage); els.gotoPage.value = currentPage; };
-els.gotoBtn.onclick = async ()=>{ if(!pdfDoc) return; let n = parseInt(els.gotoPage.value||'1',10); n = Math.min(Math.max(1,n), pdfDoc.numPages); currentPage = n; await renderPage(currentPage); };
-
-/** ========= Translate actions ========= */
+/* =================== actions =================== */
 async function translatePage(n){
-  if(!pdfDoc) return;
-  await renderIfNeeded(n);
-  const pv = pageViews.get(n);
-  const lines = pv.lines.map(l=>l.text);
+  if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
+  const pv=pageViews.get(n);
+  const lines=pv.lines.map(l=>l.text);
   setStatus(`กำลังแปล: หน้า ${n}/${pdfDoc.numPages}`);
-  const res = await Translator.translateLines(lines, {source:'auto', target:'th'});
-  pv.translated = res;
-  // วางข้อความแปลลง overlay
-  const divs = Array.from(pv.overlay.querySelectorAll('.tline'));
-  res.forEach((txt, i)=>{
-    if(divs[i]) divs[i].textContent = txt || lines[i];
-  });
+  const res=await Translator.translateLines(lines,{source:'auto', target:'th'});
+  pv.translated=res;
+  const divs=Array.from(pv.overlay.querySelectorAll('.tline'));
+  res.forEach((txt,i)=>{ if(divs[i]) divs[i].textContent = txt || lines[i]; });
   setStatus(`แปลเสร็จ: หน้า ${n}`);
+  // auto switch to TH mode once translated
+  els.modePills.forEach(b=>b.classList.remove('active'));
+  const thBtn = document.querySelector('.mode-pill .btn[data-mode="thai"]'); thBtn.classList.add('active');
   applyDisplayMode();
 }
+
 async function translateAll(){
-  if(!pdfDoc) return;
+  if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
   for(let n=1;n<=pdfDoc.numPages;n++){
-    await renderIfNeeded(n);
+    await renderPage(n);
     await translatePage(n);
   }
   setStatus('แปลครบทั้งเล่มแล้ว');
 }
 
-/** ========= Analysis (offline) ========= */
-function getPageText(n, {preferTranslated=true}={}){
-  const pv = pageViews.get(n);
-  if(!pv) return '';
-  const arr = (preferTranslated && pv.translated?.length) ? pv.translated : pv.lines.map(l=>l.text);
+function getPageText(n,{preferTranslated=true}={}){
+  const pv=pageViews.get(n); if(!pv) return '';
+  const arr=(preferTranslated && pv.translated?.length)? pv.translated : pv.lines.map(l=>l.text);
   return arr.join('\n');
 }
-
 function summarizeTextSimple(text, sentences=5){
-  // แยกประโยคง่ายๆ แล้วจัดอันดับด้วยความถี่คำ (หยาบๆ แต่เร็ว)
-  const sents = text.split(/(?<=\.|\?|!|।|…|฿|”|”|")\s+|\n+/).filter(s=>s.trim().length>0);
+  const sents = text.split(/(?<=\.|\?|!|”|")\s+|\n+/).filter(s=>s.trim());
   if(sents.length<=sentences) return sents.join(' ');
   const words = text.toLowerCase().replace(/[^a-zA-Zก-๙0-9\s]/g,' ').split(/\s+/).filter(Boolean);
   const stop = new Set(['the','a','an','and','or','of','to','in','is','are','was','were','that','this','with','for','on','as','at','by','แต่','และ','หรือ','จาก','ของ','ที่','ซึ่ง','ได้','แล้ว','ก็','คือ','ให้','ใน','เป็น','ไป']);
-  const freq = new Map();
-  for(const w of words){ if(!stop.has(w)) freq.set(w, (freq.get(w)||0)+1); }
-  const score = sents.map(s=>{
-    const ws = s.toLowerCase().replace(/[^a-zA-Zก-๙0-9\s]/g,' ').split(/\s+/).filter(Boolean);
-    let sc=0; for(const w of ws){ if(freq.has(w)) sc += freq.get(w); }
-    return {s, sc};
-  });
-  score.sort((a,b)=>b.sc - a.sc);
-  return score.slice(0, sentences).map(o=>o.s).join(' ');
+  const freq = new Map(); for(const w of words){ if(!stop.has(w)) freq.set(w,(freq.get(w)||0)+1); }
+  const score=sents.map(s=>({s, sc:s.toLowerCase().split(/\W+/).reduce((t,w)=>t+(freq.get(w)||0),0)})).sort((a,b)=>b.sc-a.sc);
+  return score.slice(0,sentences).map(o=>o.s).join(' ');
 }
-
-function keyTerms(text, k=12){
-  const words = text.toLowerCase().replace(/[^a-zA-Zก-๙0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>1);
-  const stop = new Set(['the','a','an','and','or','of','to','in','is','are','was','were','that','this','with','for','on','as','at','by','แต่','และ','หรือ','จาก','ของ','ที่','ซึ่ง','ได้','แล้ว','ก็','คือ','ให้','ใน','เป็น','ไป']);
-  const freq = new Map();
-  for(const w of words){ if(!stop.has(w)) freq.set(w, (freq.get(w)||0)+1); }
+function keyTerms(text,k=12){
+  const words=text.toLowerCase().replace(/[^a-zA-Zก-๙0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>1);
+  const stop=new Set(['the','a','an','and','or','of','to','in','is','are','was','were','that','this','with','for','on','as','at','by','แต่','และ','หรือ','จาก','ของ','ที่','ซึ่ง','ได้','แล้ว','ก็','คือ','ให้','ใน','เป็น','ไป']);
+  const freq=new Map(); for(const w of words){ if(!stop.has(w)) freq.set(w,(freq.get(w)||0)+1); }
   return [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,k).map(([w,c])=>`${w} (${c})`).join(', ');
 }
 
-/** ========= Events ========= */
-els.fileInput.addEventListener('change', async (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  await openPdfFromFile(file);
+/* =================== events =================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // file/url
+  els.fileInput.addEventListener('change', e=>{ const f=e.target.files?.[0]; if(f) openPdfFromFile(f); });
+  els.openUrlBtn.addEventListener('click', ()=>{ const u=prompt('ใส่ URL ของ PDF (ต้องอนุญาต CORS)'); if(u) openPdfFromUrl(u.trim()); });
+
+  // nav
+  els.prevBtn.addEventListener('click', async ()=>{ if(!pdfDoc) return; currentPage=Math.max(1,currentPage-1); await renderPage(currentPage); els.gotoPage.value=currentPage; });
+  els.nextBtn.addEventListener('click', async ()=>{ if(!pdfDoc) return; currentPage=Math.min(pdfDoc.numPages,currentPage+1); await renderPage(currentPage); els.gotoPage.value=currentPage; });
+  els.gotoBtn.addEventListener('click', async ()=>{ if(!pdfDoc) return; let n=parseInt(els.gotoPage.value||'1',10); n=Math.min(Math.max(1,n), pdfDoc.numPages); currentPage=n; await renderPage(currentPage); });
+
+  // translate
+  els.translatePageBtn.addEventListener('click', ()=> translatePage(currentPage));
+  els.translateAllBtn.addEventListener('click', ()=> translateAll());
+
+  // mode/font
+  els.modePills.forEach(btn=>{
+    btn.addEventListener('click', ()=>{ els.modePills.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); applyDisplayMode(); });
+  });
+  els.fontSel.addEventListener('change', applyDisplayMode);
+  els.fontScale.addEventListener('input', applyDisplayMode);
+
+  // analysis
+  els.summPgBtn.addEventListener('click', ()=>{ if(!pdfDoc) return; setAnalysis(summarizeTextSimple(getPageText(currentPage,true),5)); });
+  els.termsPgBtn.addEventListener('click', ()=>{ if(!pdfDoc) return; setAnalysis('คำสำคัญ: '+keyTerms(getPageText(currentPage,true),15)); });
+  els.exportTxtBtn.addEventListener('click', ()=>{
+    if(!pdfDoc) return;
+    let all=''; for(let n=1;n<=pdfDoc.numPages;n++){ all += `\n\n===== หน้า ${n} =====\n` + getPageText(n,true); }
+    const blob=new Blob([all],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='exported_text.txt'; a.click();
+  });
+
+  log('พร้อมใช้งาน ▶ เลือกไฟล์ PDF หรือกด “เปิดลิงก์ PDF”');
+  setStatus('ยังไม่มีเอกสาร');
 });
-els.openUrlBtn.onclick = async ()=>{
-  const url = prompt('ใส่ URL ของไฟล์ PDF (ต้องอนุญาต CORS):');
-  if(url){ await openPdfFromUrl(url); }
-};
-
-els.translatePageBtn.onclick = ()=> translatePage(currentPage);
-els.translateAllBtn.onclick = ()=> translateAll();
-
-els.fontSel.onchange = applyDisplayMode;
-els.fontScale.oninput = applyDisplayMode;
-
-els.modePills.forEach(btn=>{
-  btn.onclick = ()=>{
-    els.modePills.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    displayMode = btn.dataset.mode;
-    applyDisplayMode();
-  };
-});
-
-els.summPgBtn.onclick = ()=>{
-  if(!pdfDoc) return;
-  const txt = getPageText(currentPage, {preferTranslated:true});
-  setAnalysis(summarizeTextSimple(txt, 5));
-};
-els.termsPgBtn.onclick = ()=>{
-  if(!pdfDoc) return;
-  const txt = getPageText(currentPage, {preferTranslated:true});
-  setAnalysis('คำสำคัญ: ' + keyTerms(txt, 15));
-};
-els.exportTxtBtn.onclick = ()=>{
-  if(!pdfDoc) return;
-  let all = '';
-  for(let n=1;n<=pdfDoc.numPages;n++){
-    all += `\n\n===== หน้า ${n} =====\n` + getPageText(n, {preferTranslated:true});
-  }
-  const blob = new Blob([all], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'exported_text.txt';
-  a.click();
-};
-
-/** ========= Initial UI hints ========= */
-log('พร้อมใช้งาน ▶ อัปโหลดไฟล์ PDF หรือคลิก “เปิดลิงก์ PDF”');
-log('แนะนำ: เริ่มจากไฟล์ PDF ที่เป็น text (ไม่ใช่สแกนรูป) เพื่อให้ตำแหน่งข้อความตรง');
-log('หากไฟล์เป็นสแกน: ระบบยังอ่านได้ แต่การจัดตำแหน่งอาจไม่แม่น (จำเป็นต้องมี OCR เซิร์ฟเวอร์ ซึ่ง GitHub Pages ไม่รองรับ)');
-setStatus('ยังไม่มีเอกสาร');
-
 </script>
 </body>
 </html>
