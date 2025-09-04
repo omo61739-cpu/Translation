@@ -2,16 +2,12 @@
 <html lang="th">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>แปล+ | PDF Thai Overlay (Pro • Auto LT→MM→LLM)</title>
+<title>แปล+ | PDF Thai Overlay (Blocks)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 <style>
-:root{
-  --bg:#0f1218;--panel:#161b23;--text:#e9edf4;--muted:#9fb0c9;
-  --font:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  --scale:1.10;--lh:1.80;--cover:.98;--mask:.00;
-}
+:root{--bg:#0f1218;--panel:#161b23;--text:#e9edf4;--muted:#9fb0c9;--font:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--scale:1.1;--lh:1.8;--cover:.98;--mask:.85}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
 .top{position:sticky;top:0;z-index:10;background:#111725;border-bottom:1px solid #1e2533;padding:10px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -19,27 +15,23 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-famil
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn,.field,.select{background:#151c28;border:1px solid #2a3549;color:#e9edf4;padding:8px 10px;border-radius:10px}
 .btn{cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px);border-color:#3a465e}
-.btn.acc{background:linear-gradient(135deg,rgba(89,157,221,.18),rgba(139,209,125,.18));border-color:#356a7c}
+.btn.primary{background:linear-gradient(135deg,rgba(89,157,221,.32),rgba(139,209,125,.32));border-color:#2f7d9f;box-shadow:0 6px 18px rgba(66,161,236,.22);padding:10px 18px;font-weight:700}
 .hint{color:var(--muted);font-size:12px}
-.wrap{display:grid;grid-template-columns:1fr 400px;gap:14px;padding:14px}
+.wrap{display:grid;grid-template-columns:1fr 420px;gap:14px;padding:14px}
 #stage{background:#0b0f16;border:1px solid #1b2333;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:72vh}
 .page{position:relative;background:#fff;border:1px solid #e9eef7;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.25);overflow:hidden}
 canvas{display:block}
 .mask{position:absolute;inset:0;background:rgba(255,255,255,var(--mask));pointer-events:none}
 .overlay{position:absolute;inset:0;pointer-events:none}
-.tblock{
-  position:absolute;left:0;top:0;width:100%;
-  white-space:pre-wrap;word-break:break-word;
-  font-family:var(--font);font-size:calc(14px*var(--scale));line-height:var(--lh);
-  color:#0b0f12;background:rgba(255,255,255,var(--cover));
-  padding:.28em .38em;border-radius:6px
-}
+.tblock{position:absolute;left:0;top:0;width:100%;white-space:pre-wrap;word-break:break-word;font-family:var(--font);font-size:calc(14px*var(--scale));line-height:var(--lh);color:#0b0f12;background:rgba(255,255,255,var(--cover));padding:.28em .38em;border-radius:6px}
 .side{background:var(--panel);border:1px solid #1f2740;border-radius:12px;padding:12px}
 .card{background:#111725;border:1px solid #1e2638;border-radius:10px;padding:10px;margin:8px 0}
-.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:160px;overflow:auto}
+.block{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid #2a384f;border-radius:12px;padding:10px;margin-top:8px}
+.block h4{margin:0;font-size:15px}
+.block small{color:#9fb0c9}
+.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:140px;overflow:auto}
 .badge{padding:6px 10px;border:1px solid #2a3a53;border-radius:999px}
-.ok{border-color:#3f6a44;background:rgba(139,209,125,.12)}.warn{border-color:#7a3b3b;background:rgba(255,107,107,.12)}
-/* Flow: ไทยล้วน */
+.ok{border-color:#3f6a44;background:rgba(139,209,125,.12)} .warn{border-color:#7a3b3b;background:rgba(255,107,107,.12)}
 #flow{display:none;width:100%;max-width:900px;background:#fff;color:#111;padding:20px;border-radius:12px}
 #flow p{margin:0 0 1.05em 0;font-size:calc(16px*var(--scale));line-height:var(--lh)}
 #flow .cap{font-weight:700;letter-spacing:.08em;text-align:center;margin:0 0 1.3em 0}
@@ -48,14 +40,12 @@ canvas{display:block}
 </head>
 <body>
 <div class="top">
-  <div class="brand">แปล+ (PDF Thai Overlay)</div>
-
+  <div class="brand">แปล+ (Blocks)</div>
   <div class="row">
     <input id="fileInput" type="file" class="btn" accept="application/pdf"/>
     <input id="urlInput" class="field" placeholder="หรือ /pdfs/book.pdf (ลิงก์ต้อง CORS เดียวกัน)" style="min-width:320px"/>
     <button id="openUrlBtn" class="btn">เปิดลิงก์ PDF</button>
   </div>
-
   <div class="row">
     <button id="prevBtn" class="btn">◀ หน้า</button>
     <span class="hint">หน้า</span>
@@ -63,23 +53,14 @@ canvas{display:block}
     <span id="pageCountHint" class="hint">/ 0</span>
     <button id="nextBtn" class="btn">หน้า ▶</button>
   </div>
-
   <div class="row">
-    <button id="modeOrig" class="btn">ต้นฉบับ</button>
-    <button id="modeThai" class="btn">แปล</button>
-    <button id="modeBi" class="btn">สองภาษา</button>
-    <button id="flowBtn" class="btn acc">อ่านง่าย (Flow)</button>
+    <button id="oneClickBtn" class="btn primary">🔁 แปลด่วนหน้านี้</button>
+    <button id="flowBtn" class="btn">อ่านง่าย (Flow)</button>
   </div>
-
   <div class="row">
-    <span class="hint">ขนาด</span><input id="fontScale" class="field" type="range" min="0.90" max="1.70" step="0.02" value="1.10"/>
-    <span class="hint">บรรทัด</span><input id="lineHeight" class="field" type="range" min="1.30" max="2.40" step="0.02" value="1.80"/>
-    <span class="hint">หน้าขาว</span><input id="pageMask" class="field" type="range" min="0" max="1" step="0.02" value="0.00"/>
-  </div>
-
-  <div class="row">
-    <button id="translatePageBtn" class="btn acc">แปลหน้าปัจจุบัน</button>
-    <button id="translateAllBtn" class="btn acc">แปลทั้งเล่ม</button>
+    <span class="hint">ขนาด</span><input id="fontScale" class="field" type="range" min="0.9" max="1.7" step="0.02" value="1.1"/>
+    <span class="hint">บรรทัด</span><input id="lineHeight" class="field" type="range" min="1.3" max="2.4" step="0.02" value="1.8"/>
+    <span class="hint">หน้าขาว</span><input id="pageMask" class="field" type="range" min="0" max="1" step="0.02" value="0.85"/>
   </div>
 </div>
 
@@ -97,49 +78,57 @@ canvas{display:block}
   <div class="side">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:700">แปล/ตั้งค่า</div>
-        <div id="endpointBadge" class="badge warn">ยังไม่ทดสอบ</div>
+        <div style="font-weight:700">เลือกบล็อกการแปล</div>
+        <div id="engineBadge" class="badge warn">ยังไม่เลือก</div>
       </div>
 
-      <div class="row" style="margin-top:8px">
-        <label class="hint"><input id="useTranslate" type="checkbox" checked/> ใช้งานตัวแปล</label>
-        <select id="engine" class="select">
-          <option value="auto" selected>Auto (LT → MM → LLM)</option>
-          <option value="lt">LibreTranslate</option>
-          <option value="mm">MyMemory</option>
-          <option value="llm">LLM (กำหนดเอง)</option>
-        </select>
-        <button id="testEndpointBtn" class="btn">ทดสอบตัวแปล</button>
+      <!-- BLOCK: FREE -->
+      <div class="block" data-block="free">
+        <div>
+          <h4>ฟรี (LT → MM)</h4>
+          <small>อัตโนมัติ: LibreTranslate ก่อน ถ้า 429/ล่ม สลับเป็น MyMemory</small>
+        </div>
+        <button class="btn use-block">ใช้บล็อกนี้</button>
       </div>
 
-      <!-- LT/MM -->
-      <input id="endpointLT" class="field" value="https://libretranslate.com/translate" placeholder="LT /translate">
-      <div class="row"><input id="apiKeyLT" class="field" style="flex:1" placeholder="LT API key (ถ้ามี)"></div>
+      <!-- BLOCK: PRO (LLM preset) -->
+      <div class="block" data-block="pro">
+        <div>
+          <h4>โปร (LLM คุณภาพสูง)</h4>
+          <small>ตั้งค่ามาให้: Base <code>https://api.openai.com/v1</code>, Model <code>gpt-4o-mini</code> — ใส่ API key อย่างเดียว</small>
+        </div>
+        <button class="btn use-block">ใช้บล็อกนี้</button>
+      </div>
 
-      <!-- LLM -->
-      <div class="card" style="margin-top:8px">
-        <div class="hint" style="margin-bottom:6px">LLM (OpenAI-compatible)</div>
-        <input id="llmBase"   class="field" placeholder="เช่น https://your-proxy.example.com/v1">
-        <input id="llmModel"  class="field" placeholder="model เช่น gpt-4o-mini / llama-3.1-70b" />
-        <input id="llmKey"    class="field" placeholder="LLM API key" />
+      <!-- BLOCK: CUSTOM LLM -->
+      <div class="block" data-block="custom">
+        <div>
+          <h4>กำหนดเอง (LLM เฉพาะของคุณ)</h4>
+          <small>รองรับปลายทาง OpenAI-compatible/Proxy ใด ๆ</small>
+        </div>
+        <button class="btn use-block">ใช้บล็อกนี้</button>
+      </div>
+
+      <div class="card" id="advanced" style="display:none">
+        <div style="font-weight:700;margin-bottom:6px">ตั้งค่า LLM</div>
+        <input id="llmBase"  class="field" placeholder="Base เช่น https://api.openai.com/v1">
+        <input id="llmModel" class="field" placeholder="Model เช่น gpt-4o-mini / llama-3.1-70b">
+        <input id="llmKey"   class="field" placeholder="LLM API key">
       </div>
 
       <div class="card">
-        <label class="hint"><input id="coverToggle" type="checkbox" checked/> ปิดทับต้นฉบับเป็น “บล็อกย่อหน้าเต็ม”</label>
-        <label class="hint"><input id="stylize" type="checkbox" checked/> ปรับสำนวนให้อ่านเป็นนิยาย (beta)</label>
-        <label class="hint"><input id="autoFix" type="checkbox" checked/> เก็บกวาดคำอังกฤษค้าง</label>
+        <div style="font-weight:700;margin-bottom:6px">Glossary & โปรไฟล์ตัวละคร</div>
+        <div class="hint">บรรทัดละรายการ: <code>neuron=นิวรอน</code> / <code>Watson=วัตสัน(ผม)</code></div>
+        <textarea id="glossary" class="field" style="width:100%;height:90px"></textarea>
       </div>
 
-      <div class="hint" style="margin-top:6px">Glossary / ตัวละคร (บรรทัดละคู่): <code>neuron=นิวรอน</code> หรือ <code>Watson=วัตสัน(ผม/ฉัน)</code></div>
-      <textarea id="glossary" class="field" style="width:100%;height:84px"></textarea>
-
-      <div id="log" class="log" style="margin-top:10px">พร้อมใช้งาน</div>
-      <div class="row" style="justify-content:flex-end;margin-top:6px"><button id="clearLogBtn" class="btn">เคลียร์บันทึก</button></div>
+      <div class="log" id="log">พร้อมใช้งาน</div>
+      <button id="testBtn" class="btn" style="width:100%;margin-top:6px">ทดสอบ/ตรวจบล็อก</button>
     </div>
 
     <div class="card">
       <strong>ข้อความของหน้านี้</strong>
-      <div id="pageText" class="log" style="height:180px"></div>
+      <div id="pageText" class="log" style="height:200px"></div>
     </div>
   </div>
 </div>
@@ -148,160 +137,134 @@ canvas{display:block}
 const $=s=>document.querySelector(s);
 const log=s=>{const el=$('#log');el.textContent+='\\n'+s;el.scrollTop=el.scrollHeight;};
 const setLog=s=>{$('#log').textContent=s;};
-const badge=(t,ok)=>{const b=$('#endpointBadge');b.textContent=t;b.className='badge '+(ok?'ok':'warn');};
+const badge=(t,ok)=>{const b=$('#engineBadge');b.textContent=t;b.className='badge '+(ok?'ok':'warn');};
 
-let pdfDoc=null,pageNum=1;
-const canvas=$('#pdfCanvas'),ctx=canvas.getContext('2d'),overlay=$('#overlay'),flow=$('#flow');
-const pages=new Map(); // n -> {lines, blocks, translatedBlocks}
-const memory = JSON.parse(localStorage.getItem('pdf_story_memory')||'{}'); // {characters:{name:pronoun/note},gloss:{}}
+let pdfDoc=null,pageNum=1;const canvas=$('#pdfCanvas'),ctx=canvas.getContext('2d'),overlay=$('#overlay'),flow=$('#flow');
+const pages=new Map();
+const state=JSON.parse(localStorage.getItem('blocks_state')||'{}'); // {active:'free'|'pro'|'custom', llm:{base,model,key}}
+if(!state.active) state.active='free';
 
-function saveMem(){localStorage.setItem('pdf_story_memory',JSON.stringify(memory));}
+function save(){localStorage.setItem('blocks_state',JSON.stringify(state));}
+
 function applyTypo(){document.documentElement.style.setProperty('--scale',$('#fontScale').value);document.documentElement.style.setProperty('--lh',$('#lineHeight').value);}
 function applyMask(){document.documentElement.style.setProperty('--mask',$('#pageMask').value);}
+
+function showAdvanced(show){$('#advanced').style.display=show?'block':'none';}
+function selectBlock(b){
+  state.active=b; save();
+  if(b==='free'){ badge('ฟรี: LT→MM',true); showAdvanced(false); }
+  if(b==='pro'){ badge('โปร (LLM)',true); showAdvanced(true); if(!state.llm){state.llm={base:'https://api.openai.com/v1',model:'gpt-4o-mini',key:''};}
+                 $('#llmBase').value=state.llm.base; $('#llmModel').value=state.llm.model; $('#llmKey').value=state.llm.key||''; }
+  if(b==='custom'){ badge('กำหนดเอง (LLM)',true); showAdvanced(true); $('#llmBase').value=state.llm?.base||''; $('#llmModel').value=state.llm?.model||''; $('#llmKey').value=state.llm?.key||''; }
+}
+
+document.querySelectorAll('.use-block').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    const block=e.target.closest('.block').dataset.block;
+    selectBlock(block);
+  });
+});
 
 async function loadBuf(buf){setLog('กำลังเปิดไฟล์…');pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;$('#pageCountHint').textContent='/ '+pdfDoc.numPages;$('#emptyHint').style.display='none';$('#pageWrap').style.display='block';pages.clear();await renderPage(1);}
 async function loadUrl(url){setLog('กำลังดาวน์โหลด PDF…');const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);await loadBuf(await r.arrayBuffer());}
 
 async function renderPage(n){
-  if(!pdfDoc) return;
-  pageNum=Math.min(Math.max(1,n),pdfDoc.numPages);$('#gotoPage').value=pageNum;
+  if(!pdfDoc) return; pageNum=Math.min(Math.max(1,n),pdfDoc.numPages); $('#gotoPage').value=pageNum;
   const page=await pdfDoc.getPage(pageNum);
   const cw=document.getElementById('stage').clientWidth-40, vp0=page.getViewport({scale:1});
   const s=Math.min(2,cw/vp0.width), vp=page.getViewport({scale:s});
-  canvas.width=vp.width; canvas.height=vp.height; overlay.style.width=vp.width+'px'; overlay.style.height=vp.height+'px'; flow.style.width=vp.width+'px';
+  canvas.width=vp.width;canvas.height=vp.height;overlay.style.width=vp.width+'px';overlay.style.height=vp.height+'px';flow.style.width=vp.width+'px';
   await page.render({canvasContext:ctx,viewport:vp}).promise;
 
   let cache=pages.get(pageNum);
   if(!cache){
     const tc=await page.getTextContent({normalizeWhitespace:true,includeMarkedContent:true});
-    const lines=buildLines(tc,vp); const blocks=groupBlocks(lines);
-    cache={lines,blocks,translatedBlocks:blocks.map(b=>b.text)}; pages.set(pageNum,cache);
-    // auto-learn names from "Name : Role"
-    for(const b of blocks){const m=b.text.match(/^([A-Z][A-Za-z .'-]{1,30})\\s*:\\s*(.+)$/); if(m){(memory.characters??={})[m[1]]=m[2];}}
-    saveMem();
+    // line -> rows -> paragraphs
+    const items=tc.items.map(it=>{const m=pdfjsLib.Util.transform(vp.transform,it.transform);return {x:m[4],y:m[5],h:Math.max(8,Math.hypot(m[2],m[3])),w:it.width*vp.scale,str:(it.str||'').trim()};}).filter(i=>i.str);
+    const tol=4,rows=[]; for(const it of items){let r=rows.find(rr=>Math.abs(rr.y-it.y)<=tol); if(!r){r={y:it.y,h:it.h,items:[]}; rows.push(r);} r.items.push(it); r.h=Math.max(r.h,it.h);}
+    const lines=rows.map(r=>{r.items.sort((a,b)=>a.x-b.x);const t=r.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,' ').trim();const x=Math.min(...r.items.map(i=>i.x)),mx=Math.max(...r.items.map(i=>i.x+i.w));return {text:t,x,y:r.y-r.h*0.9,w:Math.max(1,mx-x),h:r.h};});
+    const gap=18,blocks=[]; let cur=null; for(const ln of lines.sort((a,b)=>a.y-b.y)){if(!cur||(ln.y-(cur.y+cur.h))>gap){cur={...ln};blocks.push(cur);}else{cur.text+=(ln.text.match(/^[—–-]/)?'':' ')+ln.text;cur.w=Math.max(cur.w,(ln.x+ln.w)-Math.min(cur.x,ln.x));cur.x=Math.min(cur.x,ln.x);cur.h=Math.max(cur.h,ln.h);}}
+    cache={blocks,translatedBlocks:blocks.map(b=>b.text)}; pages.set(pageNum,cache);
   }
-  paintBlocks(cache.blocks,cache.translatedBlocks); setPageText(cache.translatedBlocks.join('\\n\\n'));
+  paint(cache.blocks,cache.translatedBlocks); setPageText(cache.translatedBlocks.join('\\n\\n'));
 }
-function buildLines(tc,vp){
-  const items=tc.items.map(it=>{const m=pdfjsLib.Util.transform(vp.transform,it.transform);const x=m[4],y=m[5],h=Math.max(8,Math.hypot(m[2],m[3])),w=it.width*vp.scale;return {x,y,w,h,str:(it.str||'').trim()};}).filter(i=>i.str);
-  const tol=4,rows=[];for(const it of items){let r=rows.find(rr=>Math.abs(rr.y-it.y)<=tol);if(!r){r={y:it.y,h:it.h,items:[]};rows.push(r);}r.items.push(it);r.h=Math.max(r.h,it.h);}
-  return rows.map(r=>{r.items.sort((a,b)=>a.x-b.x);const t=r.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,' ').trim();const x=Math.min(...r.items.map(i=>i.x)),mx=Math.max(...r.items.map(i=>i.x+i.w));return {text:t,x,y:r.y-r.h*0.9,w:Math.max(1,mx-x),h:r.h};});
-}
-function groupBlocks(lines){const blocks=[];let cur=null;const gap=18;for(const ln of lines.sort((a,b)=>a.y-b.y)){if(!cur||(ln.y-(cur.y+cur.h))>gap){cur={x:ln.x,y:ln.y,w:ln.w,h:ln.h,text:ln.text};blocks.push(cur);}else{cur.text+=(ln.text.match(/^[—–-]/)?'':' ')+ln.text;cur.w=Math.max(cur.w,(ln.x+ln.w)-Math.min(cur.x,ln.x));cur.x=Math.min(cur.x,ln.x);cur.h=Math.max(cur.h,ln.h);}}return blocks;}
-function paintBlocks(blocks,texts){overlay.innerHTML='';for(let i=0;i<blocks.length;i++){const b=blocks[i],t=texts?.[i]??b.text;const d=document.createElement('div');d.className='tblock';d.style.left=b.x+'px';d.style.top=b.y+'px';d.style.width=b.w+'px';if(!$('#coverToggle').checked)d.style.background='transparent';d.textContent=t;overlay.appendChild(d);}}
+function paint(blocks,texts){overlay.innerHTML='';for(let i=0;i<blocks.length;i++){const b=blocks[i],t=texts?.[i]??b.text;const d=document.createElement('div');d.className='tblock';d.style.left=b.x+'px';d.style.top=b.y+'px';d.style.width=b.w+'px';d.textContent=t;overlay.appendChild(d);}}
 function setPageText(t){const el=$('#pageText');el.textContent=t;el.scrollTop=0;}
 
-/* ---------- Engines ---------- */
 const thaiRatio=s=>{const th=(s.match(/[\u0E00-\u0E7F]/g)||[]).length;const letters=(s.replace(/\s/g,'').match(/[A-Za-z\u0E00-\u0E7F]/g)||[]).length;return letters?th/letters:0;};
+async function trLT(text){const ep='https://libretranslate.com/translate';const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:text,source:'auto',target:'th',format:'text'})}); if(!r.ok) throw new Error('LT '+r.status); const j=await r.json(); const out=j?.translatedText||''; if(thaiRatio(out)<0.1) throw new Error('LT not-thai'); return out;}
+async function trMM(text){const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,900))+'&langpair=en|th';const r=await fetch(url); if(!r.ok) throw new Error('MM '+r.status); const j=await r.json(); const out=j?.responseData?.translatedText||''; if(thaiRatio(out)<0.1) throw new Error('MM not-thai'); return out;}
+async function trLLM(text,ctx){const base=($('#llmBase').value||state.llm?.base||'').replace(/\/+$/,''); const key=$('#llmKey').value||state.llm?.key||''; const model=$('#llmModel').value||state.llm?.model||''; if(!base||!key||!model) throw new Error('LLM not-set'); const body={model,temperature:0.2,messages:[{role:'system',content:'คุณคือนักแปลนิยาย อังกฤษ→ไทย รักษาบริบท/โทน/สรรพนาม ห้ามสรุปหรือตัดทอน'},{role:'user',content:'บริบท:\n'+ctx.slice(-1500)+'\n\nข้อความ:\n'+text}]}; const r=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify(body)}); if(!r.ok) throw new Error('LLM '+r.status); const j=await r.json(); const out=j?.choices?.[0]?.message?.content?.trim()||''; if(thaiRatio(out)<0.3) throw new Error('LLM not-thai'); return out;}
 
-async function translateLT(text){const ep=$('#endpointLT').value.trim();if(!/\/translate(\?|$)/.test(ep))throw new Error('LT endpoint ต้องลงท้ายด้วย /translate');const body={q:text,source:'auto',target:'th',format:'text'};const k=$('#apiKeyLT').value.trim();if(k)body.api_key=k;const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();const out=j?.translatedText??'';if(thaiRatio(out)<0.10)throw new Error('LT: ไม่ใช่ข้อความไทย');return out;}
-
-async function translateMM(text){const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,900))+'&langpair=en|th';const r=await fetch(url);if(!r.ok)throw new Error('MM: HTTP '+r.status);const j=await r.json();const out=j?.responseData?.translatedText||'';if(thaiRatio(out)<0.10)throw new Error('MM: ไม่ใช่ข้อความไทย');return out;}
-
-/* LLM (OpenAI-compatible chat) */
-async function translateLLM(text, ctx){
-  const base=($('#llmBase').value||'').replace(/\/+$/,''); const key=$('#llmKey').value||''; const model=$('#llmModel').value||'';
-  if(!base||!key||!model) throw new Error('กรอก LLM Base/Key/Model ให้ครบ');
-  const system = [
-   'คุณคือนักแปลนิยายมืออาชีพ → อังกฤษ → ไทย',
-   'ข้อกำหนด: ราบรื่นเป็นธรรมชาติ รักษาอารมณ์และโทนตัวละคร ใช้สรรพนามให้สอดคล้องตามบริบท',
-   'คงรูปแบบชื่อนามเฉพาะ/ชื่อสถานที่ (ทับศัพท์อย่างสม่ำเสมอ)',
-   'ห้ามสรุป ห้ามตัดใจความ ห้ามเพิ่มข้อมูลใหม่',
-   'ผลลัพธ์: ภาษาไทยล้วน พร้อมวรรคตอนอ่านง่าย'
-  ].join('\\n');
-  // ดึงความจำ/กลอสซารี่มาช่วยบริบท
-  const gloss = ($('#glossary').value||'').trim();
-  const mem = JSON.stringify(memory.characters||{});
-  const prompt = `บริบทก่อนหน้า (ตัดให้สั้น): ${ctx.slice(-1200)}
-คำศัพท์/โทนพิเศษ (ถ้ามี): ${gloss}
-โปรไฟล์ตัวละคร/สรรพนามที่ควรยึด: ${mem}
-ข้อความที่ต้องแปล (ทั้งก้อน ใช้ย่อหน้าเดิม):\\n` + text;
-
-  const body={model,temperature:0.2,messages:[{role:'system',content:system},{role:'user',content:prompt}]};
-  const r=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify(body)});
-  if(!r.ok) throw new Error('LLM: HTTP '+r.status);
-  const j=await r.json(); const out=j?.choices?.[0]?.message?.content?.trim()||'';
-  if(thaiRatio(out)<0.30) throw new Error('LLM: ผลลัพธ์ไม่ใช่ภาษาไทย');
-  return out;
-}
-
-/* Auto chain */
-async function translateAuto(text, ctx){
-  try{ return await translateLT(text); }
-  catch(e1){ log('[LT] '+e1.message+' → ลอง MyMemory'); try{ return await translateMM(text); }
-    catch(e2){ log('[MM] '+e2.message+' → ลอง LLM'); return await translateLLM(text, ctx); } }
-}
-async function translateByMode(text, ctx){
-  const mode=$('#engine').value;
-  if(mode==='lt') return translateLT(text);
-  if(mode==='mm') return translateMM(text);
-  if(mode==='llm') return translateLLM(text, ctx);
-  return translateAuto(text, ctx); // auto
-}
-
-/* ---------- Stylize/Glossary/AutoFix ---------- */
-function stylizeThai(s){ if(!$('#stylize').checked) return s; const rules=[[/(“|”|")/g,'”'],[/('’|‘)/g,'’'],[/…/g,'…'],[/--/g,'—'],[/ - /g,' — '],[/\s+([.,!?;:])/g,'$1']]; let o=s; for(const[r,t] of rules)o=o.replace(r,t); return o; }
 function parseGloss(){const m=new Map();($('#glossary').value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const[k,...R]=l.split('=');if(k&&R.length)m.set(k.trim(),R.join('=').trim());}); return m;}
 function applyGloss(s,gl){let o=s;gl.forEach((v,k)=>{o=o.replace(new RegExp('(?<!\\w)'+k.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')+'(?!\\w)','gi'),v);});return o;}
 function needsFix(s){return /[A-Za-z]{3,}/.test(s)&&thaiRatio(s)<0.6;}
 function splitSentences(s){return s.replace(/\n+/g,' ').split(/(?<=[.!?])\s+/).filter(Boolean);}
-async function fixLeftovers(th){ if(!$('#autoFix').checked) return th; if(!needsFix(th)) return th;
-  const parts=splitSentences(th); for(let i=0;i<parts.length;i++){ if(needsFix(parts[i])){ try{ parts[i]=await translateByMode(parts[i],''); }catch{} } }
-  let out=parts.join(' '); if(!needsFix(out)) return out;
-  const words=[...new Set(out.match(/\b[A-Za-z]{3,}\b/g)||[])].slice(0,12);
-  for(const w of words){ try{ const tw=await translateByMode(w,''); if(thaiRatio(tw)>0.3) out=out.replace(new RegExp('\\b'+w+'\\b','g'),tw); }catch{} }
-  return out;
+async function autoFix(th,ctx){ if(!needsFix(th)) return th; const parts=splitSentences(th); for(let i=0;i<parts.length;i++){ if(needsFix(parts[i])){ try{ parts[i]=await translateByBlock(parts[i],ctx,true); }catch{} } } let out=parts.join(' '); if(!needsFix(out)) return out; const words=[...new Set(out.match(/\b[A-Za-z]{3,}\b/g)||[])].slice(0,12); for(const w of words){ try{ const tw=await translateByBlock(w,ctx,true); if(thaiRatio(tw)>0.3) out=out.replace(new RegExp('\\b'+w+'\\b','g'),tw);}catch{} } return out; }
+function stylizeThai(s){const rules=[[/(“|”|")/g,'”'],[/('’|‘)/g,'’'],[/…/g,'…'],[/--/g,'—'],[/ - /g,' — '],[/\s+([.,!?;:])/g,'$1']]; let o=s; for(const[r,t] of rules) o=o.replace(r,t); return o;}
+function collectCtx(n){let ctx=''; for(let i=Math.max(1,n-2); i<n; i++){ const c=pages.get(i); if(c?.translatedBlocks) ctx+=c.translatedBlocks.join('\\n')+'\\n'; } return ctx;}
+
+async function translateByBlock(text,ctx,fixPhase=false){
+  const gl=parseGloss(); text=applyGloss(text,gl);
+  const mode=state.active;
+  const order = (mode==='free') ? ['lt','mm','llm'] : ['llm','lt','mm'];
+  for(const eng of order){
+    try{
+      let out = eng==='lt'? await trLT(text) : eng==='mm'? await trMM(text) : await trLLM(text,ctx);
+      out = applyGloss(out,gl);
+      if(!fixPhase) out = stylizeThai(out);
+      return out;
+    }catch(e){ log('['+eng+'] '+e.message); }
+  }
+  throw new Error('ไม่มีเครื่องยนต์ที่ใช้งานได้ในบล็อกนี้');
 }
 
-/* ---------- Translate Page (paragraph-level + context) ---------- */
-async function translatePage(){
-  if(!$('#useTranslate').checked) return alert('ปิดตัวแปลอยู่'); if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
+async function oneClick(){
+  if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
   const cache=pages.get(pageNum); if(!cache||!cache.blocks?.length){ setLog('หน้านี้ไม่มีข้อความ'); return; }
-  const gl=parseGloss();
-  const ctx = collectContext(pageNum); // บริบท 2–3 หน้า
-  const texts=cache.blocks.map(b=>applyGloss(b.text,gl)); const out=[];
-  setLog(`แปลหน้า ${pageNum} • ${texts.length} ย่อหน้า (engine=${$('#engine').value})`);
-
-  for(let i=0;i<texts.length;i++){
+  setLog(`แปลด่วนหน้า ${pageNum} (${state.active})`);
+  const ctx=collectCtx(pageNum); const out=[];
+  for(let i=0;i<cache.blocks.length;i++){
+    const src=cache.blocks[i].text;
     try{
-      let th = await translateByMode(texts[i], ctx);
-      th = await fixLeftovers(th);
-      th = stylizeThai(applyGloss(th,gl));
+      let th = await translateByBlock(src,ctx,false);
+      th = await autoFix(th,ctx);
       out.push(th);
-    }catch(e){ log(`[ย่อหน้า ${i+1}] ${e.message} → ใช้ต้นฉบับ`); out.push(texts[i]); }
+    }catch(e){ out.push(src); log(`[ย่อหน้า ${i+1}] ใช้ต้นฉบับ (${e.message})`); }
     await new Promise(r=>setTimeout(r, 550));
   }
-  cache.translatedBlocks=out; paintBlocks(cache.blocks,out); setPageText(out.join('\\n\\n')); setMode('thai');
-  if(flow.style.display==='block') renderFlow(out, cache);
-  setLog(`แปลหน้า ${pageNum} เสร็จ ✓`);
+  cache.translatedBlocks=out; paint(cache.blocks,out); setPageText(out.join('\\n\\n')); setLog('เสร็จ ✓');
 }
-function collectContext(n){ let ctx=''; for(let i=Math.max(1,n-2); i<n; i++){ const c=pages.get(i); if(c?.translatedBlocks) ctx+=c.translatedBlocks.join('\\n')+'\\n'; } return ctx; }
-function renderFlow(texts, cache){ flow.innerHTML=''; const maybeTitle=cache.blocks[0]?.text?.trim(); if(maybeTitle&&maybeTitle.length<24&&/^[A-Z ]+$/i.test(maybeTitle)){const cap=document.createElement('p');cap.className='cap';cap.textContent=texts[0];flow.appendChild(cap);texts.slice(1).forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});} else {texts.forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});}}
-async function translateAll(){ if(!pdfDoc) return alert('ยังไม่มีเอกสาร'); for(let n=1;n<=pdfDoc.numPages;n++){ await renderPage(n); await translatePage(); } setLog('แปลทั้งเล่มเสร็จ ✓'); }
-async function testEngines(){ try{ const t=await translateByMode('Hello world','(no ctx)'); badge('พร้อมใช้งาน',true); log('ทดสอบผ่าน: '+t); }catch(e){ badge('ใช้ไม่ได้: '+(e.message||'error'),false); log('ทดสอบล้มเหลว: '+(e.message||e)); }}
 
-/* ---------- events ---------- */
+function renderFlow(){const c=pages.get(pageNum); if(!c?.translatedBlocks?.length){ setLog('ยังไม่แปลหน้านี้'); return; } const texts=c.translatedBlocks, maybe=c.blocks[0]?.text?.trim(); flow.innerHTML=''; if(maybe&&maybe.length<24&&/^[A-Z ]+$/i.test(maybe)){const cap=document.createElement('p');cap.className='cap';cap.textContent=texts[0];flow.appendChild(cap);texts.slice(1).forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});} else {texts.forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});}}
+
+async function testBlock(){
+  try{
+    const sample='Hello';
+    if(state.active==='free'){ try{await trLT(sample); badge('ฟรี: LT พร้อม',true);}catch{await trMM(sample); badge('ฟรี: MM พร้อม',true);} }
+    else{ await trLLM('ทดสอบการแปล', ''); badge('โปร/กำหนดเอง: LLM พร้อม',true); }
+    log('ทดสอบผ่าน ✓');
+  }catch(e){ badge('บล็อกยังใช้ไม่ได้',false); log('ทดสอบล้มเหลว: '+e.message+' (ถ้าเป็น LLM ต้องใส่ Base/Model/Key)'); }
+}
+
+/* events */
 document.addEventListener('DOMContentLoaded', ()=>{
   $('#fileInput').addEventListener('change', async e=>{const f=e.target.files?.[0]; if(!f) return; loadBuf(await f.arrayBuffer()).catch(err=>setLog('เปิดไฟล์ไม่สำเร็จ: '+err.message));});
   $('#openUrlBtn').addEventListener('click', ()=>{const u=$('#urlInput').value.trim(); if(u) loadUrl(u).catch(err=>setLog('โหลดลิงก์ไม่สำเร็จ (มัก CORS): '+err.message));});
-  $('#prevBtn').addEventListener('click', ()=>renderPage(pageNum-1)); $('#nextBtn').addEventListener('click', ()=>renderPage(pageNum+1));
+  $('#prevBtn').addEventListener('click', ()=>renderPage(pageNum-1));
+  $('#nextBtn').addEventListener('click', ()=>renderPage(pageNum+1));
   $('#gotoPage').addEventListener('change', ()=>renderPage(parseInt($('#gotoPage').value||'1',10)));
-  $('#modeOrig').addEventListener('click', ()=>{overlay.style.display='none';canvas.style.display='block';flow.style.display='none';});
-  $('#modeThai').addEventListener('click', ()=>{overlay.style.display='block';canvas.style.display='block';flow.style.display='none';});
-  $('#modeBi').addEventListener('click', ()=>{overlay.style.display='block';canvas.style.display='block';flow.style.display='none';});
-  $('#flowBtn').addEventListener('click', ()=>{
-    const on=flow.style.display!=='block';
-    if(on){ const c=pages.get(pageNum); if(c?.translatedBlocks?.length){renderFlow(c.translatedBlocks,c);} else {translatePage().then(()=>{const k=pages.get(pageNum);renderFlow(k.translatedBlocks,k);});} }
-    flow.style.display=on?'block':'none'; overlay.style.display=on?'none':'block'; canvas.style.display=on?'none':'block';
-  });
+  $('#fontScale').addEventListener('input', applyTypo);
+  $('#lineHeight').addEventListener('input', applyTypo);
+  $('#pageMask').addEventListener('input', applyMask);
+  $('#oneClickBtn').addEventListener('click', oneClick);
+  $('#flowBtn').addEventListener('click', ()=>{const on=flow.style.display!=='block'; if(on) renderFlow(); flow.style.display=on?'block':'none'; overlay.style.display=on?'none':'block'; canvas.style.display=on?'none':'block';});
+  $('#testBtn').addEventListener('click', testBlock);
+  $('#llmBase').addEventListener('input', e=>{state.llm=state.llm||{};state.llm.base=e.target.value;save();});
+  $('#llmModel').addEventListener('input', e=>{state.llm=state.llm||{};state.llm.model=e.target.value;save();});
+  $('#llmKey').addEventListener('input', e=>{state.llm=state.llm||{};state.llm.key=e.target.value;save();});
 
-  $('#translatePageBtn').addEventListener('click', translatePage); $('#translateAllBtn').addEventListener('click', translateAll);
-  $('#clearLogBtn').addEventListener('click', ()=>setLog('พร้อมใช้งาน'));
-
-  $('#fontScale').addEventListener('input', applyTypo); $('#lineHeight').addEventListener('input', applyTypo); $('#pageMask').addEventListener('input', applyMask);
-  $('#testEndpointBtn').addEventListener('click', testEngines);
-
-  applyTypo(); applyMask(); testEngines();
+  applyTypo(); applyMask(); selectBlock(state.active);
 });
 </script>
 </body>
