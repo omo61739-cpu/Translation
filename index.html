@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>แปล+ | PDF Thai Overlay (อ่านง่าย • Clean)</title>
+<title>แปล+ | PDF Thai Overlay (Pro • Auto LT→MM→LLM)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
@@ -10,10 +10,7 @@
 :root{
   --bg:#0f1218;--panel:#161b23;--text:#e9edf4;--muted:#9fb0c9;
   --font:"Sarabun",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  --scale:1.08;         /* ขนาดตัวอักษร */
-  --lh:1.78;            /* ระยะบรรทัด */
-  --cover:.98;          /* ความทึบพื้นหลังย่อหน้า */
-  --mask:.00;           /* หน้าขาวเต็มหน้า (0=โปร่ง,1=ทึบ) */
+  --scale:1.10;--lh:1.80;--cover:.98;--mask:.00;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -24,30 +21,29 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-famil
 .btn{cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-1px);border-color:#3a465e}
 .btn.acc{background:linear-gradient(135deg,rgba(89,157,221,.18),rgba(139,209,125,.18));border-color:#356a7c}
 .hint{color:var(--muted);font-size:12px}
-.wrap{display:grid;grid-template-columns:1fr 380px;gap:14px;padding:14px}
+.wrap{display:grid;grid-template-columns:1fr 400px;gap:14px;padding:14px}
 #stage{background:#0b0f16;border:1px solid #1b2333;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:72vh}
 .page{position:relative;background:#fff;border:1px solid #e9eef7;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.25);overflow:hidden}
 canvas{display:block}
 .mask{position:absolute;inset:0;background:rgba(255,255,255,var(--mask));pointer-events:none}
 .overlay{position:absolute;inset:0;pointer-events:none}
 .tblock{
-  position:absolute; left:0; top:0; width:100%;
-  white-space:pre-wrap; word-break:break-word;
-  font-family:var(--font); font-size:calc(14px*var(--scale)); line-height:var(--lh);
-  color:#0b0f12; background:rgba(255,255,255,var(--cover));
-  padding:.28em .38em; border-radius:6px;
+  position:absolute;left:0;top:0;width:100%;
+  white-space:pre-wrap;word-break:break-word;
+  font-family:var(--font);font-size:calc(14px*var(--scale));line-height:var(--lh);
+  color:#0b0f12;background:rgba(255,255,255,var(--cover));
+  padding:.28em .38em;border-radius:6px
 }
-.mode-bi canvas{opacity:.6;filter:grayscale(12%) contrast(105%)}
 .side{background:var(--panel);border:1px solid #1f2740;border-radius:12px;padding:12px}
 .card{background:#111725;border:1px solid #1e2638;border-radius:10px;padding:10px;margin:8px 0}
-.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:140px;overflow:auto}
+.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#b6c3db;background:#0b0f16;border:1px dashed #2a3549;border-radius:8px;padding:8px;height:160px;overflow:auto}
 .badge{padding:6px 10px;border:1px solid #2a3a53;border-radius:999px}
-.ok{border-color:#3f6a44;background:rgba(139,209,125,.12)} .warn{border-color:#7a3b3b;background:rgba(255,107,107,.12)}
-/* Flow mode (อ่านไทยล้วน) */
+.ok{border-color:#3f6a44;background:rgba(139,209,125,.12)}.warn{border-color:#7a3b3b;background:rgba(255,107,107,.12)}
+/* Flow: ไทยล้วน */
 #flow{display:none;width:100%;max-width:900px;background:#fff;color:#111;padding:20px;border-radius:12px}
 #flow p{margin:0 0 1.05em 0;font-size:calc(16px*var(--scale));line-height:var(--lh)}
 #flow .cap{font-weight:700;letter-spacing:.08em;text-align:center;margin:0 0 1.3em 0}
-@media (max-width:980px){.wrap{grid-template-columns:1fr}#stage{min-height:68vh}}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}#stage{min-height:68vh}}
 </style>
 </head>
 <body>
@@ -64,7 +60,7 @@ canvas{display:block}
     <button id="prevBtn" class="btn">◀ หน้า</button>
     <span class="hint">หน้า</span>
     <input id="gotoPage" class="field" type="number" min="1" value="1" style="width:80px"/>
-    <span class="hint" id="pageCountHint">/ 0</span>
+    <span id="pageCountHint" class="hint">/ 0</span>
     <button id="nextBtn" class="btn">หน้า ▶</button>
   </div>
 
@@ -76,8 +72,8 @@ canvas{display:block}
   </div>
 
   <div class="row">
-    <span class="hint">ขนาด</span><input id="fontScale" class="field" type="range" min="0.90" max="1.70" step="0.02" value="1.08"/>
-    <span class="hint">บรรทัด</span><input id="lineHeight" class="field" type="range" min="1.30" max="2.40" step="0.02" value="1.78"/>
+    <span class="hint">ขนาด</span><input id="fontScale" class="field" type="range" min="0.90" max="1.70" step="0.02" value="1.10"/>
+    <span class="hint">บรรทัด</span><input id="lineHeight" class="field" type="range" min="1.30" max="2.40" step="0.02" value="1.80"/>
     <span class="hint">หน้าขาว</span><input id="pageMask" class="field" type="range" min="0" max="1" step="0.02" value="0.00"/>
   </div>
 
@@ -91,8 +87,8 @@ canvas{display:block}
   <div id="stage">
     <div id="pageWrap" class="page" style="display:none">
       <canvas id="pdfCanvas"></canvas>
-      <div class="mask" id="mask"></div>
-      <div class="overlay" id="overlay"></div>
+      <div id="mask" class="mask"></div>
+      <div id="overlay" class="overlay"></div>
       <div id="flow"></div>
     </div>
     <div id="emptyHint" class="hint">ยังไม่มีเอกสาร — เลือกไฟล์หรือใส่ลิงก์ PDF</div>
@@ -108,29 +104,36 @@ canvas{display:block}
       <div class="row" style="margin-top:8px">
         <label class="hint"><input id="useTranslate" type="checkbox" checked/> ใช้งานตัวแปล</label>
         <select id="engine" class="select">
-          <option value="auto" selected>Auto (LibreTranslate → MyMemory)</option>
-          <option value="lt">LibreTranslate เท่านั้น</option>
-          <option value="mm">MyMemory เท่านั้น</option>
+          <option value="auto" selected>Auto (LT → MM → LLM)</option>
+          <option value="lt">LibreTranslate</option>
+          <option value="mm">MyMemory</option>
+          <option value="llm">LLM (กำหนดเอง)</option>
         </select>
         <button id="testEndpointBtn" class="btn">ทดสอบตัวแปล</button>
       </div>
 
-      <input id="endpoint" class="field" value="https://libretranslate.com/translate" placeholder="LibreTranslate /translate (เมื่อใช้ LT)"/>
-      <input id="apiKey" class="field" placeholder="API key (ถ้าปลายทาง LT กำหนด)"/>
+      <!-- LT/MM -->
+      <input id="endpointLT" class="field" value="https://libretranslate.com/translate" placeholder="LT /translate">
+      <div class="row"><input id="apiKeyLT" class="field" style="flex:1" placeholder="LT API key (ถ้ามี)"></div>
 
-      <div class="card" style="margin-top:10px">
-        <label class="hint"><input id="coverToggle" type="checkbox" checked/> ปิดทับต้นฉบับเป็น “บล็อกย่อหน้าเต็ม”</label>
+      <!-- LLM -->
+      <div class="card" style="margin-top:8px">
+        <div class="hint" style="margin-bottom:6px">LLM (OpenAI-compatible)</div>
+        <input id="llmBase"   class="field" placeholder="เช่น https://your-proxy.example.com/v1">
+        <input id="llmModel"  class="field" placeholder="model เช่น gpt-4o-mini / llama-3.1-70b" />
+        <input id="llmKey"    class="field" placeholder="LLM API key" />
       </div>
 
       <div class="card">
+        <label class="hint"><input id="coverToggle" type="checkbox" checked/> ปิดทับต้นฉบับเป็น “บล็อกย่อหน้าเต็ม”</label>
         <label class="hint"><input id="stylize" type="checkbox" checked/> ปรับสำนวนให้อ่านเป็นนิยาย (beta)</label>
-        <label class="hint"><input id="autoFix" type="checkbox" checked/> เก็บกวาดคำอังกฤษที่เหลืออัตโนมัติ</label>
+        <label class="hint"><input id="autoFix" type="checkbox" checked/> เก็บกวาดคำอังกฤษค้าง</label>
       </div>
 
-      <div class="hint" style="margin-top:8px">Glossary (บรรทัดละคำ: <code>neuron=นิวรอน</code>)</div>
-      <textarea id="glossary" class="field" style="width:100%;height:70px"></textarea>
+      <div class="hint" style="margin-top:6px">Glossary / ตัวละคร (บรรทัดละคู่): <code>neuron=นิวรอน</code> หรือ <code>Watson=วัตสัน(ผม/ฉัน)</code></div>
+      <textarea id="glossary" class="field" style="width:100%;height:84px"></textarea>
 
-      <div class="log" id="log" style="margin-top:10px">พร้อมใช้งาน</div>
+      <div id="log" class="log" style="margin-top:10px">พร้อมใช้งาน</div>
       <div class="row" style="justify-content:flex-end;margin-top:6px"><button id="clearLogBtn" class="btn">เคลียร์บันทึก</button></div>
     </div>
 
@@ -145,189 +148,137 @@ canvas{display:block}
 const $=s=>document.querySelector(s);
 const log=s=>{const el=$('#log');el.textContent+='\\n'+s;el.scrollTop=el.scrollHeight;};
 const setLog=s=>{$('#log').textContent=s;};
-const badge=(txt,ok)=>{const b=$('#endpointBadge');b.textContent=txt;b.className='badge '+(ok?'ok':'warn');};
+const badge=(t,ok)=>{const b=$('#endpointBadge');b.textContent=t;b.className='badge '+(ok?'ok':'warn');};
 
 let pdfDoc=null,pageNum=1;
 const canvas=$('#pdfCanvas'),ctx=canvas.getContext('2d'),overlay=$('#overlay'),flow=$('#flow');
-
 const pages=new Map(); // n -> {lines, blocks, translatedBlocks}
+const memory = JSON.parse(localStorage.getItem('pdf_story_memory')||'{}'); // {characters:{name:pronoun/note},gloss:{}}
 
-function setMode(m){
-  const st=document.getElementById('stage');
-  st.classList.remove('mode-bi');
-  if(m==='orig'){ overlay.style.display='none'; canvas.style.display='block'; flow.style.display='none'; }
-  if(m==='thai'){ overlay.style.display='block'; canvas.style.display='block'; flow.style.display='none'; }
-  if(m==='bi'){ overlay.style.display='block'; canvas.style.display='block'; st.classList.add('mode-bi'); flow.style.display='none'; }
-}
-function setFlowMode(on){
-  if(on){ canvas.style.display='none'; overlay.style.display='none'; flow.style.display='block'; }
-  else  { setMode('thai'); }
-}
-function applyTypo(){
-  document.documentElement.style.setProperty('--scale',$('#fontScale').value);
-  document.documentElement.style.setProperty('--lh',$('#lineHeight').value);
-}
-function applyMask(){ document.documentElement.style.setProperty('--mask',$('#pageMask').value); }
+function saveMem(){localStorage.setItem('pdf_story_memory',JSON.stringify(memory));}
+function applyTypo(){document.documentElement.style.setProperty('--scale',$('#fontScale').value);document.documentElement.style.setProperty('--lh',$('#lineHeight').value);}
+function applyMask(){document.documentElement.style.setProperty('--mask',$('#pageMask').value);}
 
-async function loadBuf(buf){ setLog('กำลังเปิดไฟล์…'); pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
-  $('#pageCountHint').textContent='/ '+pdfDoc.numPages; $('#emptyHint').style.display='none';
-  $('#pageWrap').style.display='block'; pages.clear(); await renderPage(1);
-}
-async function loadUrl(url){ setLog('กำลังดาวน์โหลด PDF…'); const r=await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status); await loadBuf(await r.arrayBuffer()); }
+async function loadBuf(buf){setLog('กำลังเปิดไฟล์…');pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;$('#pageCountHint').textContent='/ '+pdfDoc.numPages;$('#emptyHint').style.display='none';$('#pageWrap').style.display='block';pages.clear();await renderPage(1);}
+async function loadUrl(url){setLog('กำลังดาวน์โหลด PDF…');const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);await loadBuf(await r.arrayBuffer());}
 
 async function renderPage(n){
   if(!pdfDoc) return;
-  pageNum=Math.min(Math.max(1,n),pdfDoc.numPages); $('#gotoPage').value=pageNum;
+  pageNum=Math.min(Math.max(1,n),pdfDoc.numPages);$('#gotoPage').value=pageNum;
   const page=await pdfDoc.getPage(pageNum);
   const cw=document.getElementById('stage').clientWidth-40, vp0=page.getViewport({scale:1});
   const s=Math.min(2,cw/vp0.width), vp=page.getViewport({scale:s});
   canvas.width=vp.width; canvas.height=vp.height; overlay.style.width=vp.width+'px'; overlay.style.height=vp.height+'px'; flow.style.width=vp.width+'px';
   await page.render({canvasContext:ctx,viewport:vp}).promise;
 
-  let cache = pages.get(pageNum);
+  let cache=pages.get(pageNum);
   if(!cache){
     const tc=await page.getTextContent({normalizeWhitespace:true,includeMarkedContent:true});
-    const lines=buildLines(tc,vp);
-    const blocks=groupBlocks(lines);
-    cache={lines,blocks,translatedBlocks:blocks.map(b=>b.text)};
-    pages.set(pageNum,cache);
+    const lines=buildLines(tc,vp); const blocks=groupBlocks(lines);
+    cache={lines,blocks,translatedBlocks:blocks.map(b=>b.text)}; pages.set(pageNum,cache);
+    // auto-learn names from "Name : Role"
+    for(const b of blocks){const m=b.text.match(/^([A-Z][A-Za-z .'-]{1,30})\\s*:\\s*(.+)$/); if(m){(memory.characters??={})[m[1]]=m[2];}}
+    saveMem();
   }
-  paintBlocks(cache.blocks, cache.translatedBlocks);
-  setPageText(cache.translatedBlocks.join('\\n\\n'));
+  paintBlocks(cache.blocks,cache.translatedBlocks); setPageText(cache.translatedBlocks.join('\\n\\n'));
 }
-function buildLines(textContent,vp){
-  const items=textContent.items.map(it=>{
-    const m=pdfjsLib.Util.transform(vp.transform,it.transform);
-    const x=m[4],y=m[5],h=Math.max(8,Math.hypot(m[2],m[3])),w=it.width*vp.scale;
-    return {x,y,w,h,str:(it.str||'').trim()};
-  }).filter(i=>i.str);
-  const tol=4, rows=[];
-  for(const it of items){
-    let r=rows.find(rr=>Math.abs(rr.y-it.y)<=tol);
-    if(!r){ r={y:it.y,h:it.h,items:[]}; rows.push(r); }
-    r.items.push(it); r.h=Math.max(r.h,it.h);
-  }
-  return rows.map(r=>{
-    r.items.sort((a,b)=>a.x-b.x);
-    const text=r.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,' ').trim();
-    const x=Math.min(...r.items.map(i=>i.x)), maxX=Math.max(...r.items.map(i=>i.x+i.w));
-    return {text,x,y:r.y- r.h*0.9,w:Math.max(1,maxX-x),h:r.h};
-  });
+function buildLines(tc,vp){
+  const items=tc.items.map(it=>{const m=pdfjsLib.Util.transform(vp.transform,it.transform);const x=m[4],y=m[5],h=Math.max(8,Math.hypot(m[2],m[3])),w=it.width*vp.scale;return {x,y,w,h,str:(it.str||'').trim()};}).filter(i=>i.str);
+  const tol=4,rows=[];for(const it of items){let r=rows.find(rr=>Math.abs(rr.y-it.y)<=tol);if(!r){r={y:it.y,h:it.h,items:[]};rows.push(r);}r.items.push(it);r.h=Math.max(r.h,it.h);}
+  return rows.map(r=>{r.items.sort((a,b)=>a.x-b.x);const t=r.items.map(i=>i.str).join(' ').replace(/\s+\n\s+/g,' ').trim();const x=Math.min(...r.items.map(i=>i.x)),mx=Math.max(...r.items.map(i=>i.x+i.w));return {text:t,x,y:r.y-r.h*0.9,w:Math.max(1,mx-x),h:r.h};});
 }
-function groupBlocks(lines){
-  const blocks=[]; let cur=null; const gap=18;
-  for(const ln of lines.sort((a,b)=>a.y-b.y)){
-    if(!cur || (ln.y - (cur.y + cur.h)) > gap){
-      cur={x:ln.x, y:ln.y, w:ln.w, h:ln.h, text:ln.text};
-      blocks.push(cur);
-    }else{
-      cur.text += (ln.text.match(/^[—–-]/)? '' : ' ') + ln.text;
-      cur.w = Math.max(cur.w, (ln.x+ln.w) - Math.min(cur.x, ln.x));
-      cur.x = Math.min(cur.x, ln.x);
-      cur.h = Math.max(cur.h, ln.h);
-    }
-  }
-  return blocks;
-}
-function paintBlocks(blocks, texts){
-  overlay.innerHTML='';
-  for(let i=0;i<blocks.length;i++){
-    const b=blocks[i], t=texts?.[i] ?? b.text;
-    const div=document.createElement('div'); div.className='tblock';
-    div.style.left=b.x+'px'; div.style.top=b.y+'px'; div.style.width=b.w+'px';
-    if(!$('#coverToggle').checked) div.style.background='transparent';
-    div.textContent=t; overlay.appendChild(div);
-  }
-}
-function setPageText(t){ const el=$('#pageText'); el.textContent=t; el.scrollTop=0; }
+function groupBlocks(lines){const blocks=[];let cur=null;const gap=18;for(const ln of lines.sort((a,b)=>a.y-b.y)){if(!cur||(ln.y-(cur.y+cur.h))>gap){cur={x:ln.x,y:ln.y,w:ln.w,h:ln.h,text:ln.text};blocks.push(cur);}else{cur.text+=(ln.text.match(/^[—–-]/)?'':' ')+ln.text;cur.w=Math.max(cur.w,(ln.x+ln.w)-Math.min(cur.x,ln.x));cur.x=Math.min(cur.x,ln.x);cur.h=Math.max(cur.h,ln.h);}}return blocks;}
+function paintBlocks(blocks,texts){overlay.innerHTML='';for(let i=0;i<blocks.length;i++){const b=blocks[i],t=texts?.[i]??b.text;const d=document.createElement('div');d.className='tblock';d.style.left=b.x+'px';d.style.top=b.y+'px';d.style.width=b.w+'px';if(!$('#coverToggle').checked)d.style.background='transparent';d.textContent=t;overlay.appendChild(d);}}
+function setPageText(t){const el=$('#pageText');el.textContent=t;el.scrollTop=0;}
 
 /* ---------- Engines ---------- */
 const thaiRatio=s=>{const th=(s.match(/[\u0E00-\u0E7F]/g)||[]).length;const letters=(s.replace(/\s/g,'').match(/[A-Za-z\u0E00-\u0E7F]/g)||[]).length;return letters?th/letters:0;};
-function ltEndpoint(){let ep=($('#endpoint').value||'').trim(); if(!/\/translate(\?|$)/.test(ep)) throw new Error('LT endpoint ต้องลงท้ายด้วย /translate'); return ep;}
-async function translateLT(text){ const body={q:text,source:'auto',target:'th',format:'text'};
-  const key=($('#apiKey').value||'').trim(); if(key) body.api_key=key;
-  const r=await fetch(ltEndpoint(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!r.ok) throw new Error('HTTP '+r.status); const data=await r.json();
-  const out=data?.translatedText??''; if(thaiRatio(out)<0.10) throw new Error('LT: ไม่ใช่ข้อความไทย'); return out;
-}
-async function translateMM(text){
-  const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,900))+'&langpair=en|th';
-  const r=await fetch(url); if(!r.ok) throw new Error('MM: HTTP '+r.status);
-  const j=await r.json(); const out=j?.responseData?.translatedText||''; if(thaiRatio(out)<0.10) throw new Error('MM: ไม่ใช่ข้อความไทย'); return out;
-}
-async function translateAuto(text){ try{return await translateLT(text);}catch(e){ log('[LT> '+(e.message||e)+'] → MyMemory'); return await translateMM(text);} }
-async function translateOne(text){ const mode=$('#engine').value; if(mode==='lt')return translateLT(text); if(mode==='mm')return translateMM(text); return translateAuto(text); }
 
-/* ---------- Stylize & Glossary ---------- */
-function stylizeThai(s){
-  if(!$('#stylize').checked) return s;
-  const rules=[
-    [/“|”|\"/g,'”'], [/‘|’|\'/g,'’'], [/…/g,'…'], [/--/g,'—'], [/ - /g,' — '],
-    [/\s+([.,!?;:])/g,'$1'], [/([(])\s+/g,'$1'], [/\s+([)])/g,'$1']
-  ];
-  let out=s; for(const [r,t] of rules) out=out.replace(r,t);
+async function translateLT(text){const ep=$('#endpointLT').value.trim();if(!/\/translate(\?|$)/.test(ep))throw new Error('LT endpoint ต้องลงท้ายด้วย /translate');const body={q:text,source:'auto',target:'th',format:'text'};const k=$('#apiKeyLT').value.trim();if(k)body.api_key=k;const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();const out=j?.translatedText??'';if(thaiRatio(out)<0.10)throw new Error('LT: ไม่ใช่ข้อความไทย');return out;}
+
+async function translateMM(text){const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text.slice(0,900))+'&langpair=en|th';const r=await fetch(url);if(!r.ok)throw new Error('MM: HTTP '+r.status);const j=await r.json();const out=j?.responseData?.translatedText||'';if(thaiRatio(out)<0.10)throw new Error('MM: ไม่ใช่ข้อความไทย');return out;}
+
+/* LLM (OpenAI-compatible chat) */
+async function translateLLM(text, ctx){
+  const base=($('#llmBase').value||'').replace(/\/+$/,''); const key=$('#llmKey').value||''; const model=$('#llmModel').value||'';
+  if(!base||!key||!model) throw new Error('กรอก LLM Base/Key/Model ให้ครบ');
+  const system = [
+   'คุณคือนักแปลนิยายมืออาชีพ → อังกฤษ → ไทย',
+   'ข้อกำหนด: ราบรื่นเป็นธรรมชาติ รักษาอารมณ์และโทนตัวละคร ใช้สรรพนามให้สอดคล้องตามบริบท',
+   'คงรูปแบบชื่อนามเฉพาะ/ชื่อสถานที่ (ทับศัพท์อย่างสม่ำเสมอ)',
+   'ห้ามสรุป ห้ามตัดใจความ ห้ามเพิ่มข้อมูลใหม่',
+   'ผลลัพธ์: ภาษาไทยล้วน พร้อมวรรคตอนอ่านง่าย'
+  ].join('\\n');
+  // ดึงความจำ/กลอสซารี่มาช่วยบริบท
+  const gloss = ($('#glossary').value||'').trim();
+  const mem = JSON.stringify(memory.characters||{});
+  const prompt = `บริบทก่อนหน้า (ตัดให้สั้น): ${ctx.slice(-1200)}
+คำศัพท์/โทนพิเศษ (ถ้ามี): ${gloss}
+โปรไฟล์ตัวละคร/สรรพนามที่ควรยึด: ${mem}
+ข้อความที่ต้องแปล (ทั้งก้อน ใช้ย่อหน้าเดิม):\\n` + text;
+
+  const body={model,temperature:0.2,messages:[{role:'system',content:system},{role:'user',content:prompt}]};
+  const r=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('LLM: HTTP '+r.status);
+  const j=await r.json(); const out=j?.choices?.[0]?.message?.content?.trim()||'';
+  if(thaiRatio(out)<0.30) throw new Error('LLM: ผลลัพธ์ไม่ใช่ภาษาไทย');
   return out;
 }
-function parseGloss(){const m=new Map();($('#glossary').value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const[k,...R]=l.split('=');if(k&&R.length)m.set(k.trim(),R.join('=').trim());});return m;}
+
+/* Auto chain */
+async function translateAuto(text, ctx){
+  try{ return await translateLT(text); }
+  catch(e1){ log('[LT] '+e1.message+' → ลอง MyMemory'); try{ return await translateMM(text); }
+    catch(e2){ log('[MM] '+e2.message+' → ลอง LLM'); return await translateLLM(text, ctx); } }
+}
+async function translateByMode(text, ctx){
+  const mode=$('#engine').value;
+  if(mode==='lt') return translateLT(text);
+  if(mode==='mm') return translateMM(text);
+  if(mode==='llm') return translateLLM(text, ctx);
+  return translateAuto(text, ctx); // auto
+}
+
+/* ---------- Stylize/Glossary/AutoFix ---------- */
+function stylizeThai(s){ if(!$('#stylize').checked) return s; const rules=[[/(“|”|")/g,'”'],[/('’|‘)/g,'’'],[/…/g,'…'],[/--/g,'—'],[/ - /g,' — '],[/\s+([.,!?;:])/g,'$1']]; let o=s; for(const[r,t] of rules)o=o.replace(r,t); return o; }
+function parseGloss(){const m=new Map();($('#glossary').value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const[k,...R]=l.split('=');if(k&&R.length)m.set(k.trim(),R.join('=').trim());}); return m;}
 function applyGloss(s,gl){let o=s;gl.forEach((v,k)=>{o=o.replace(new RegExp('(?<!\\w)'+k.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')+'(?!\\w)','gi'),v);});return o;}
-
-/* ---------- Auto-fix leftover English ---------- */
-function needsFix(s){ return /[A-Za-z]{3,}/.test(s) && thaiRatio(s) < 0.6; }
-function splitSentences(s){ return s.replace(/\n+/g,' ').split(/(?<=[.!?])\s+/).filter(Boolean); }
-async function fixLeftovers(thaiText){
-  if(!$('#autoFix').checked) return thaiText;
-  if(!needsFix(thaiText)) return thaiText;
-
-  // 1) แปลซ้ำเฉพาะประโยคที่ยังมีอังกฤษ
-  const parts=splitSentences(thaiText);
-  for(let i=0;i<parts.length;i++){
-    if(needsFix(parts[i])){
-      try{ parts[i]=await translateOne(parts[i]); }catch{}
-    }
-  }
-  let out=parts.join(' ');
-  if(!needsFix(out)) return out;
-
-  // 2) แปลคำอังกฤษเดี่ยว ๆ ที่ยังเหลือ
+function needsFix(s){return /[A-Za-z]{3,}/.test(s)&&thaiRatio(s)<0.6;}
+function splitSentences(s){return s.replace(/\n+/g,' ').split(/(?<=[.!?])\s+/).filter(Boolean);}
+async function fixLeftovers(th){ if(!$('#autoFix').checked) return th; if(!needsFix(th)) return th;
+  const parts=splitSentences(th); for(let i=0;i<parts.length;i++){ if(needsFix(parts[i])){ try{ parts[i]=await translateByMode(parts[i],''); }catch{} } }
+  let out=parts.join(' '); if(!needsFix(out)) return out;
   const words=[...new Set(out.match(/\b[A-Za-z]{3,}\b/g)||[])].slice(0,12);
-  for(const w of words){
-    try{ const th=await translateOne(w); if(thaiRatio(th)>0.3) out=out.replace(new RegExp('\\b'+w+'\\b','g'), th); }catch{}
-  }
+  for(const w of words){ try{ const tw=await translateByMode(w,''); if(thaiRatio(tw)>0.3) out=out.replace(new RegExp('\\b'+w+'\\b','g'),tw); }catch{} }
   return out;
 }
 
-/* ---------- Translate Page ---------- */
+/* ---------- Translate Page (paragraph-level + context) ---------- */
 async function translatePage(){
   if(!$('#useTranslate').checked) return alert('ปิดตัวแปลอยู่'); if(!pdfDoc) return alert('ยังไม่มีเอกสาร');
   const cache=pages.get(pageNum); if(!cache||!cache.blocks?.length){ setLog('หน้านี้ไม่มีข้อความ'); return; }
-  const gl=parseGloss(); const texts=cache.blocks.map(b=>applyGloss(b.text,gl)); const out=[];
-  setLog(`แปลหน้า ${pageNum} • ${texts.length} ย่อหน้า`);
+  const gl=parseGloss();
+  const ctx = collectContext(pageNum); // บริบท 2–3 หน้า
+  const texts=cache.blocks.map(b=>applyGloss(b.text,gl)); const out=[];
+  setLog(`แปลหน้า ${pageNum} • ${texts.length} ย่อหน้า (engine=${$('#engine').value})`);
+
   for(let i=0;i<texts.length;i++){
     try{
-      let th = await translateOne(texts[i]);
+      let th = await translateByMode(texts[i], ctx);
       th = await fixLeftovers(th);
       th = stylizeThai(applyGloss(th,gl));
       out.push(th);
     }catch(e){ log(`[ย่อหน้า ${i+1}] ${e.message} → ใช้ต้นฉบับ`); out.push(texts[i]); }
-    await new Promise(r=>setTimeout(r, 600)); // กัน 429
+    await new Promise(r=>setTimeout(r, 550));
   }
-  cache.translatedBlocks=out;
-  paintBlocks(cache.blocks,out); setPageText(out.join('\\n\\n')); setMode('thai');
+  cache.translatedBlocks=out; paintBlocks(cache.blocks,out); setPageText(out.join('\\n\\n')); setMode('thai');
   if(flow.style.display==='block') renderFlow(out, cache);
   setLog(`แปลหน้า ${pageNum} เสร็จ ✓`);
 }
-function renderFlow(texts, cache){
-  flow.innerHTML='';
-  const maybeTitle = cache.blocks[0]?.text?.trim();
-  if(maybeTitle && maybeTitle.length<24 && /^[A-Z ]+$/i.test(maybeTitle)){
-    const cap=document.createElement('p'); cap.className='cap'; cap.textContent=texts[0]; flow.appendChild(cap);
-    texts.slice(1).forEach(t=>{ const p=document.createElement('p'); p.textContent=t; flow.appendChild(p); });
-  }else{
-    texts.forEach(t=>{ const p=document.createElement('p'); p.textContent=t; flow.appendChild(p); });
-  }
-}
+function collectContext(n){ let ctx=''; for(let i=Math.max(1,n-2); i<n; i++){ const c=pages.get(i); if(c?.translatedBlocks) ctx+=c.translatedBlocks.join('\\n')+'\\n'; } return ctx; }
+function renderFlow(texts, cache){ flow.innerHTML=''; const maybeTitle=cache.blocks[0]?.text?.trim(); if(maybeTitle&&maybeTitle.length<24&&/^[A-Z ]+$/i.test(maybeTitle)){const cap=document.createElement('p');cap.className='cap';cap.textContent=texts[0];flow.appendChild(cap);texts.slice(1).forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});} else {texts.forEach(t=>{const p=document.createElement('p');p.textContent=t;flow.appendChild(p);});}}
 async function translateAll(){ if(!pdfDoc) return alert('ยังไม่มีเอกสาร'); for(let n=1;n<=pdfDoc.numPages;n++){ await renderPage(n); await translatePage(); } setLog('แปลทั้งเล่มเสร็จ ✓'); }
-async function testEngines(){ try{ const t=await translateOne('Hello'); badge('พร้อมใช้งาน',true); log('ทดสอบผ่าน: Hello → '+t); }catch(e){ badge('ใช้ไม่ได้: '+(e.message||'error'),false); log('ทดสอบล้มเหลว: '+(e.message||e)); }}
+async function testEngines(){ try{ const t=await translateByMode('Hello world','(no ctx)'); badge('พร้อมใช้งาน',true); log('ทดสอบผ่าน: '+t); }catch(e){ badge('ใช้ไม่ได้: '+(e.message||'error'),false); log('ทดสอบล้มเหลว: '+(e.message||e)); }}
 
 /* ---------- events ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -335,23 +286,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#openUrlBtn').addEventListener('click', ()=>{const u=$('#urlInput').value.trim(); if(u) loadUrl(u).catch(err=>setLog('โหลดลิงก์ไม่สำเร็จ (มัก CORS): '+err.message));});
   $('#prevBtn').addEventListener('click', ()=>renderPage(pageNum-1)); $('#nextBtn').addEventListener('click', ()=>renderPage(pageNum+1));
   $('#gotoPage').addEventListener('change', ()=>renderPage(parseInt($('#gotoPage').value||'1',10)));
-  $('#modeOrig').addEventListener('click', ()=>setMode('orig')); $('#modeThai').addEventListener('click', ()=>setMode('thai')); $('#modeBi').addEventListener('click', ()=>setMode('bi'));
-  $('#translatePageBtn').addEventListener('click', translatePage); $('#translateAllBtn').addEventListener('click', translateAll);
-  $('#clearLogBtn').addEventListener('click', ()=>setLog('พร้อมใช้งาน'));
-  $('#testEndpointBtn').addEventListener('click', testEngines);
-  $('#fontScale').addEventListener('input', applyTypo); $('#lineHeight').addEventListener('input', applyTypo); $('#pageMask').addEventListener('input', applyMask);
-  $('#coverToggle').addEventListener('change', ()=>paintBlocks(pages.get(pageNum)?.blocks||[], pages.get(pageNum)?.translatedBlocks||[]));
+  $('#modeOrig').addEventListener('click', ()=>{overlay.style.display='none';canvas.style.display='block';flow.style.display='none';});
+  $('#modeThai').addEventListener('click', ()=>{overlay.style.display='block';canvas.style.display='block';flow.style.display='none';});
+  $('#modeBi').addEventListener('click', ()=>{overlay.style.display='block';canvas.style.display='block';flow.style.display='none';});
   $('#flowBtn').addEventListener('click', ()=>{
-    const on = flow.style.display !== 'block';
-    if(on){
-      const cache=pages.get(pageNum);
-      if(cache?.translatedBlocks?.length){ renderFlow(cache.translatedBlocks, cache); }
-      else { translatePage().then(()=>{ const c=pages.get(pageNum); renderFlow(c.translatedBlocks,c); }); }
-    }
-    setFlowMode(on);
+    const on=flow.style.display!=='block';
+    if(on){ const c=pages.get(pageNum); if(c?.translatedBlocks?.length){renderFlow(c.translatedBlocks,c);} else {translatePage().then(()=>{const k=pages.get(pageNum);renderFlow(k.translatedBlocks,k);});} }
+    flow.style.display=on?'block':'none'; overlay.style.display=on?'none':'block'; canvas.style.display=on?'none':'block';
   });
 
-  setMode('orig'); applyTypo(); applyMask(); testEngines();
+  $('#translatePageBtn').addEventListener('click', translatePage); $('#translateAllBtn').addEventListener('click', translateAll);
+  $('#clearLogBtn').addEventListener('click', ()=>setLog('พร้อมใช้งาน'));
+
+  $('#fontScale').addEventListener('input', applyTypo); $('#lineHeight').addEventListener('input', applyTypo); $('#pageMask').addEventListener('input', applyMask);
+  $('#testEndpointBtn').addEventListener('click', testEngines);
+
+  applyTypo(); applyMask(); testEngines();
 });
 </script>
 </body>
